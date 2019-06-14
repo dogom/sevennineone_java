@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoAllianceActivityDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoAllianceActivityPO">
+		select
+		`id`,
+		`user_id`,
+		`name`,
+		`logo`,
+		`poster`,
+		`start_date`,
+		`end_date`,
+		`province`,
+		`city`,
+		`area`,
+		`place_level`,
+		`status`,
+		`audit_status`,
+		`audit_fail_msg`,
+		`create_time`,
+		`is_delete` from sno_alliance_activity where id = #{value} and is_delete = 0
+	</select>
+
+	<sql id="flied">
+		`id`,`user_id` userId,`name`,`logo`,`poster`,`start_date` startDate,`end_date` endDate,`province`,
+		`city`,
+		`area`,
+		`place_level` placeLevel
+	</sql>
+
+	<select id="getMapById" resultType="hashMap">
+		select
+		<include refid="flied" />
+		from sno_alliance_activity
+		where id = #{value} and is_delete = 0
+	</select>
+
+	<select id="listByIds" resultType="hashMap">
+		SELECT
+			<include refid="flied"/>
+		from sno_alliance_activity
+		WHERE id IN
+		<foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+	 
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoAllianceActivityPO" useGeneratedKeys="true" keyProperty="id">
+		insert into sno_alliance_activity
+		(
+			`user_id`,
+			`name`,
+			`logo`,
+			`poster`,
+			`start_date`,
+			`end_date`,
+			`province`,
+			`city`,
+			`area`,
+			`place_level`
+		)
+		values
+		(
+			#{userId},
+			#{name},
+			#{logo},
+			#{poster},
+			#{startDate},
+			#{endDate},
+			#{province},
+			#{city},
+			#{area},
+			#{placeLevel}
+		)
+	</insert>
+
+	<select id="getListActivityCount" resultType="Integer" parameterType="hashMap">
+		select count(*) from sno_alliance_activity
+		<where>
+			is_delete = 0
+			<if test="name!=null and name!=''">and name like CONCAT('%',#{name},'%')</if>
+			<if test="province!=null and province!=''">and province = #{province}</if>
+			<if test="city!=null and city!=''">and city = #{city}</if>
+			<if test="area!=null and area!=''">and area = #{area}</if>
+			<if test="placeLevel!=null">and placeLevel = #{placeLevel}</if>
+		</where>
+	</select>
+
+	<select id="listActivity" resultType="hashMap" parameterType="hashMap">
+		select
+		<include refid="flied"/>
+		from sno_alliance_activity
+		<where>
+			is_delete = 0
+			<if test="name!=null and name!=''">and name like CONCAT('%',#{name},'%')</if>
+			<if test="province!=null and province!=''">and province = #{province}</if>
+			<if test="city!=null and city!=''">and city = #{city}</if>
+			<if test="area!=null and area!=''">and area = #{area}</if>
+			<if test="placeLevel!=null">and placeLevel = #{placeLevel}</if>
+		</where>
+		limit #{start},#{rowCount}
+	</select>
+</mapper>

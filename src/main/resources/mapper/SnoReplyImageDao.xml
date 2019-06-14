@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoReplyImageDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoReplyImagePO">
+		select `id`,`url`,`reply_id`,`create_time`,`is_delete` from sno_reply_image where id = #{value} and is_delete = 0
+	</select>
+ 
+	<sql id="filed">
+		`id`,`url`,`reply_id` replyId,`create_time` createTime
+	</sql>
+
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoReplyImagePO" useGeneratedKeys="true" keyProperty="id">
+		insert into sno_reply_image
+		(
+			`url`,
+			`reply_id`
+		)
+		values
+		(
+			#{url},
+			#{replyId}
+		)
+	</insert>
+
+	<select id="listByReplyId" resultType="com.gfang.sevennineone.model.po.SnoReplyImagePO">
+		select
+		<include refid="filed" />
+		from sno_reply_image
+		where reply_id = #{value} and is_delete = 0
+	</select>
+
+	<select id="listByReplyIds" resultType="com.gfang.sevennineone.model.po.SnoReplyImagePO">
+		SELECT
+		<include refid="filed"/>
+		from sno_reply_image
+		where reply_id IN
+		<foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+
+
+</mapper>

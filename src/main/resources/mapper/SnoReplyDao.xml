@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoReplyDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoReplyPO">
+		select `id`,`openid`,`child_name`,`child_sex`,`child_age`,`school_info`,`subject_id`,`merchant_id`,`activity_id`,`paid_fee`,`progress`,`total_fee`,`create_time`,`is_delete` from sno_reply where id = #{value}
+	</select>
+ 
+	<sql id="filed">
+		`id`,`openid`,`child_name` childName,`child_sex` childSex,`child_age` childAge,`school_info` schoolInfo,`subject_id` subjectId,`merchant_id` merchantId,`activity_id` activityId,`paid_fee` paidFee,`progress`,`total_fee` totalFee,`create_time` createTime
+	</sql>
+
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoReplyPO" useGeneratedKeys="true" keyProperty="id">
+		insert into sno_reply
+		(
+			`openid`,
+			`child_name`,
+			`child_sex`,
+			`child_age`,
+			`school_info`,
+			`subject_id`,
+			`merchant_id`,
+			`activity_id`, 
+			`paid_fee`,
+			`total_fee`
+		)
+		values
+		(
+			#{openid},
+			#{childName},
+			#{childSex},
+			#{childAge},
+			#{schoolInfo},
+			#{subjectId},
+			#{merchantId},
+			#{activityId}, 
+			#{paidFee},
+			#{totalFee}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.gfang.sevennineone.model.po.SnoReplyPO">
+		update sno_reply 
+		<set>
+			<if test="openid!= null">`openid` = #{openid}, </if>
+			<if test="childName!= null">`child_name` = #{childName}, </if>
+			<if test="childSex!= null">`child_sex` = #{childSex}, </if>
+			<if test="childAge!= null">`child_age` = #{childAge}, </if>
+			<if test="schoolInfo!= null">`school_info` = #{schoolInfo}, </if>
+			<if test="subjectId!= null">`subject_id` = #{subjectId}, </if>
+			<if test="merchantId!= null">`merchant_id` = #{merchantId}, </if>
+			<if test="activityId!= null">`activity_id` = #{activityId}, </if>
+			<if test="paidFee!= null">`paid_fee` = #{paidFee}, </if>
+			<if test="progress!= null">`progress` = #{progress}, </if>
+			<if test="totalFee!= null">`total_fee` = #{totalFee}, </if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<select id="getByOpenidAndMerchantId" resultType="hashMap">
+		select
+		<include refid="filed" />
+		from sno_reply
+		where is_delete = 0 and openid = #{openid} and merchant_id = #{merchantId} and activity_id = #{activityId}
+	</select>
+
+	<select id="listReplyByMap" resultType="hashMap" parameterType="hashMap">
+		select
+		<include refid="filed" />
+		from sno_reply
+		where is_delete = 0 and activity_id = #{aid} and merchant_id = #{mid}
+		order by create_time DESC
+		limit #{start},#{rowCount}
+	</select>
+
+	<select id="getReplyCountByMap" resultType="long" parameterType="hashMap">
+		select count(*) from sno_reply
+		where is_delete = 0 and activity_id = #{aid} and merchant_id = #{mid}
+	</select>
+
+	<select id="getMapById" resultType="hashMap">
+		select
+		<include refid="filed" />
+		from sno_reply
+		where is_delete = 0 and id = #{value}
+	</select>
+
+	<update id="updatePaidFee">
+		update sno_reply
+		set paid_fee = paid_fee + #{newAddNum}
+		where id = #{replyId}
+	</update>
+
+
+	<select id="listReplyByUser" resultType="hashMap">
+		select
+		<include refid="filed" />
+		from sno_reply
+		where openid = #{openid}
+		and is_delete = 0
+		order by create_time
+		limit #{start},#{rowCount}
+	</select>
+
+	<select id="getUserReplyCount" resultType="Integer">
+		select count(*)
+		from sno_reply
+		where openid = #{openid}
+		and is_delete = 0
+	</select>
+
+	<select id="getByIds" resultType="com.gfang.sevennineone.model.po.SnoReplyPO">
+		select
+		<include refid="filed" />
+		from sno_reply
+		where id in
+		<foreach collection="collection" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</select>
+
+	<select id="listAppointmentA" resultType="integer">
+		select distinct activity_id activityId
+		from sno_reply
+		where  progress > 1
+		and openid = #{openid}
+		and is_delete = 0
+	</select>
+</mapper>

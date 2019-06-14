@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoUserDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoUserPO">
+		select `id`,`nickname`,`realname`,`mobile`,`avatar`,`sex`,`province`,`city`,`country`,`openid`,`union_id`,`merchant`,`create_time`,`is_delete` from sno_user where id = #{value}
+	</select>
+
+	 <sql id="filed">`id`,`nickname`,`avatar`,`sex`,`province`,`city`,`country`,`merchant`</sql>
+
+	<select id="getMapById" resultType="hashMap">
+		select
+		<include refid="filed" />
+		from sno_user
+		where is_delete = 0 and id = #{value}
+	</select>
+
+	<select id="getMapByOpenid" resultType="hashMap">
+		select
+		<include refid="filed" />
+		from sno_user
+		where is_delete = 0 and openid = #{value}
+	</select>
+
+	<insert id="save" parameterType="hashMap">
+		insert into sno_user
+		(
+			`id`,
+			`nickname`,
+			`realname`,
+			`mobile`, 
+			`avatar`, 
+			`sex`,
+			`province`,
+			`city`,
+			`country`,
+			`privilege`,
+			`openid`,
+			`union_id`
+		)
+		values
+		(
+			#{id},
+			#{nickname}, 
+			#{realname},
+			#{mobile}, 
+			#{headimgurl},
+			#{sex},
+			#{province},
+			#{city},
+			#{country},
+			#{privilege},
+			#{openid},
+			#{unionId}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.gfang.sevennineone.model.po.SnoUserPO">
+		update sno_user 
+		<set>
+			<if test="nickname != null">`nickname` = #{nickname}, </if>
+			<if test="realname != null">`realname` = #{realname}, </if>
+			<if test="mobile != null">`mobile` = #{mobile}, </if>
+			<if test="avatar != null">`avatar` = #{avatar}, </if>
+			<if test="openid != null">`openid` = #{openid}, </if>
+			<if test="unionId != null">`union_id` = #{unionId}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="isDelete != null">`is_delete` = #{isDelete}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<update id="updateByMap" parameterType="hashMap">
+		update sno_user
+		<set>
+			<if test="nickname != null">`nickname` = #{nickname}, </if>
+			<if test="sex != null">`sex` = #{sex}, </if>
+			<if test="province != null">`province` = #{province}, </if>
+			<if test="city != null">`city` = #{city}, </if>
+			<if test="country != null">`country` = #{country}, </if>
+			<if test="headimgurl != null">`avatar` = #{headimgurl}, </if>
+			<if test="unionId != null">`union_id` = #{unionId}, </if>
+		</set>
+		where openid = #{openid}
+	</update>
+
+    <update id="updatePhone">
+        update sno_user
+        set mobile = #{phone}
+        where id=#{userId}
+    </update>
+
+	 <select id="getByOpenId" resultType="com.gfang.sevennineone.model.po.SnoUserPO">
+		 select
+			*
+		 from sno_user
+		 where openid = #{openid}
+		 and is_delete = 0
+	 </select>
+
+	<select id="listByOpenids" resultType="com.gfang.sevennineone.model.po.SnoUserPO">
+		select
+		<include refid="filed" /> ,openid
+		from sno_user
+		where openid IN
+		<foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+</mapper>

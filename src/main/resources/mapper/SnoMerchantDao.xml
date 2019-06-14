@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoMerchantDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoMerchantPO">
+		select `id`,`user_id`,`name`,`description`,`bmap_loca`,`province`,`city`,`area`,`address`,`logo`,`banner`,`hot_num`,`reply_count`,`is_top`,`category_id`,`category_name`,`tel`,`vip_level`,`id_card_front`,`id_card_back`,`business_license`,`audit_status`,`audit_fail_msg`,`create_time`,`is_deposit`,`deposit_fee`,`is_delete` from sno_merchant where id = #{value} and is_delete = 0
+	</select>
+
+	<select id="getMerchantById" resultType="hashMap">
+		select `id`,`user_id`,`name`,`description`,`bmap_loca`,`province`,`city`,`area`,`address`,`logo`,`banner`,`hot_num`,`tel`,`reply_count`,`is_top`,`category_id`,`category_name` from sno_merchant where id = #{value} and is_delete = 0
+	</select>
+
+	<sql id="filed">
+		`id`,`user_id` userId,`name`,`description`,`bmap_loca` bmapLoca,`province`,`city`,`area`,`address`,`logo`,`banner`,`tel`,`hot_num` hotNum,`reply_count` replyCount,`is_top` isTop,`category_id` categoryId,`category_name` categoryName,`business_license` businessLicense,`audit_status` auditStatus
+	</sql>
+
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoMerchantPO" useGeneratedKeys="true" keyProperty="id">
+		insert into sno_merchant
+		(
+			`user_id`, 
+			`name`, 
+			`description`, 
+			`bmap_loca`,
+			 `province`,
+			 `city`,
+			 `area`,
+			`address`,
+			`logo`,
+			`banner`,
+			`category_id`,
+			`category_name`,
+			`tel`,
+			`id_card_front`, 
+			`id_card_back`, 
+			`business_license`,
+			`audit_status`
+		)
+		values
+		(
+			#{userId}, 
+			#{name}, 
+			#{description}, 
+			#{bmapLoca}, 
+			#{province},
+			#{city},
+			#{area},
+			#{address},
+			#{logo},
+			#{banner},
+			#{categoryId},
+			#{categoryName},
+			#{tel},
+			#{idCardFront}, 
+			#{idCardBack}, 
+			#{businessLicense},
+			#{auditStatus}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.gfang.sevennineone.model.po.SnoMerchantPO">
+		update sno_merchant 
+		<set>
+			<if test="userId != null">`user_id` = #{userId}, </if>
+			<if test="name != null and name!=''">`name` = #{name}, </if>
+			<if test="description != null and description!=''">`description` = #{description}, </if>
+			<if test="bmapLoca != null and bmapLoca!=''">`bmap_loca` = #{bmapLoca}, </if>
+			<if test="province != null and province!=''">`province` = #{province}, </if>
+			<if test="city != null and city!=''">`city` = #{city}, </if>
+			<if test="area != null and city!=''">`area` = #{area}, </if>
+			<if test="address != null and address!=''">`address` = #{address}, </if>
+			<if test="logo != null and logo!=''">`logo` = #{logo}, </if>
+			<if test="banner != null and banner!=''">`banner` = #{banner}, </if>
+			<if test="hotNum != null">`hot_num` = #{hotNum}, </if>
+			<if test="isTop != null">`is_top` = #{isTop}, </if>
+			<if test="categoryId != null">`category_id` = #{categoryId}, </if>
+			<if test="categoryName != null and categoryName!=''">`category_name` = #{categoryName}, </if>
+			<if test="tel != null and tel!=''">`tel` = #{tel}, </if>
+			<if test="vipLevel != null">`vip_level` = #{vipLevel}, </if>
+			<if test="idCardFront != null">`id_card_front` = #{idCardFront}, </if>
+			<if test="idCardBack != null">`id_card_back` = #{idCardBack}, </if>
+			<if test="businessLicense != null and businessLicense!=''">`business_license` = #{businessLicense}, </if>
+			<if test="auditStatus != null">`audit_status` = #{auditStatus}, </if>
+			<if test="auditFailMsg != null">`audit_fail_msg` = #{auditFailMsg}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="isDeposit != null">`is_deposit` = #{isDeposit}, </if>
+			<if test="depositFee != null">`deposit_fee` = #{depositFee}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	 <select id="listMerchant" resultType="hashMap" parameterType="hashMap">
+		 select `id`,
+		 `name`,
+		 `bmap_loca`,
+		 `province`,
+		 `city`,
+		 `area`,
+		 `address`,
+		 `logo`,
+		 `banner`,
+		 `hot_num`,
+         `reply_count`,
+		 `category_name`
+		 from sno_merchant where is_delete = 0 and audit_status = 2
+		 <if test="categoryId != null">and category_id = #{categoryId}</if>
+		 <if test="province != null">and province = #{province}</if>
+		 <if test="city != null">and city = #{city}</if>
+		 <if test="area != null">and area = #{area}</if>
+		 order by is_top desc,hot_num desc
+		 limit #{start},#{rowCount}
+	 </select>
+
+	<select id="listByIds" resultType="hashMap">
+		SELECT
+		<include refid="filed"/>
+		from sno_merchant
+		where id IN
+		<foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+
+	<update id="updateReplyCountAddOne">
+		update sno_merchant
+		set reply_count = reply_count + 1
+		where id = #{value}
+	</update>
+
+	<select id="getByUserId" resultType="com.gfang.sevennineone.model.po.SnoMerchantPO">
+		select
+		<include refid="filed" />
+		from sno_merchant
+		where user_id = #{userId}
+		and is_delete = 0
+	</select>
+
+	<update id="updateAuditStatus">
+		update sno_merchant
+		set audit_status = ${toStatus}
+		where id= #{merchantId} and audit_status = #{fromStatus}
+	</update>
+</mapper>

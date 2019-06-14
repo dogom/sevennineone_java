@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoChildDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoChildPO">
+		select `id`,`parent_id`,`name`,`age`,`sex`,`avatar`,`create_time`,`is_delete` from sno_child where id = #{value}
+	</select>
+ 
+	 
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoChildPO">
+		insert into sno_child
+		(
+			`id`, 
+			`parent_id`, 
+			`name`, 
+			`age`, 
+			`sex`, 
+			`avatar`, 
+			`create_time`, 
+			`is_delete`
+		)
+		values
+		(
+			#{id}, 
+			#{parentId}, 
+			#{name}, 
+			#{age}, 
+			#{sex}, 
+			#{avatar}, 
+			#{createTime}, 
+			#{isDelete}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.gfang.sevennineone.model.po.SnoChildPO">
+		update sno_child 
+		<set>
+			<if test="parentId != null">`parent_id` = #{parentId}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="age != null">`age` = #{age}, </if>
+			<if test="sex != null">`sex` = #{sex}, </if>
+			<if test="avatar != null">`avatar` = #{avatar}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="isDelete != null">`is_delete` = #{isDelete}</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	 
+
+</mapper>

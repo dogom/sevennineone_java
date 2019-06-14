@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoAllianceMerchantDao">
+
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoAllianceMerchantPO">
+		select
+		`id`,
+		`merchant_id`,
+		`activity_id`,
+		`status`,
+		`audit_fail_msg`,
+		`audit_time`,
+		`experience_num`,
+		`create_time`,
+		`is_delete` from sno_alliance_merchant where id = #{value} and is_delete = 0
+	</select>
+
+	<sql id="filed">
+		`id`,
+		`merchant_id` merchantId,
+		`activity_id` activityId,
+		`experience_num` experienceNum
+	</sql>
+
+	<select id="listByParams" resultType="com.gfang.sevennineone.model.po.SnoAllianceMerchantPO" parameterType="hashMap">
+		select *
+		from sno_alliance_merchant
+		<where>
+			is_delete = 0
+			<if test="merchantId!=null"> and merchant_id = #{merchantId}</if>
+			<if test="activityId!=null"> and activity_id = #{activityId}</if>
+			<if test="status!=null"> and status = #{status}</if>
+		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoAllianceMerchantPO" useGeneratedKeys="true" keyProperty="id">
+		insert into sno_alliance_merchant
+		(
+			`merchant_id`,
+			`activity_id`,
+			`experience_num`
+		)
+		values
+		(
+			#{merchantId},
+			#{activityId},
+			#{experienceNum}
+		)
+	</insert>
+
+	<select id="getByAidAndMid" resultType="hashMap">
+		select
+		<include refid="filed" />
+		from sno_alliance_merchant
+		where is_delete = 0 and status = 1 and merchant_id = #{merchantId} and activity_id = #{activityId}
+	</select>
+</mapper>

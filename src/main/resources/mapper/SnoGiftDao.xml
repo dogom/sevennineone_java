@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoGiftDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoGiftPO">
+		select `id`,`name`,`img`,`worth`,`create_time`,`is_delete` from sno_gift where id = #{value}
+	</select>
+
+	<sql id="filed">`id`,`name`,`img`,`worth`,`create_time` createTime</sql>
+	 
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoGiftPO" useGeneratedKeys="true" keyProperty="id">
+		insert into sno_gift
+		(
+			`name`, 
+			`img`, 
+			`worth`
+		)
+		values
+		(
+			#{name}, 
+			#{img},
+			#{worth}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.gfang.sevennineone.model.po.SnoGiftPO">
+		update sno_gift 
+		<set>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="img != null">`img` = #{img}, </if>
+			<if test="worth != null">`worth` = #{worth}, </if>
+			<if test="createTime != null">`create_time` = #{createTime}, </if>
+			<if test="isDelete != null">`is_delete` = #{isDelete}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<select id="listMapGift" resultType="hashMap">
+		select
+		<include refid="filed" />
+		from sno_gift
+		where is_delete = 0 order by worth
+	</select>
+	 
+
+</mapper>

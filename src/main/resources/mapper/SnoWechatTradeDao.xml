@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoWechatTradeDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoWechatTradePO">
+		select
+		`id`,`user_id`,`openid`,`out_trade_no`,`status`,`total_fee`,`prepay_id`,`trade_type`,`create_time`,`time_end`
+		from sno_wechat_trade where id = #{value}
+	</select>
+
+	<sql id="filed">`id`,`user_id` userId,`openid`,`out_trade_no` outTradeNo,`status`,`total_fee` totalFee,`prepay_id` prepayId,`trade_type` tradeType,`create_time` createTime,`time_end` timeEnd </sql>
+	 
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoWechatTradePO" useGeneratedKeys="true" keyProperty="id">
+		insert into sno_wechat_trade
+		(
+			`user_id`,`openid`,`out_trade_no`,`status`,`total_fee`,`prepay_id`,`trade_type`,`time_end`
+		)
+		values
+		(
+			#{userId},
+			#{openid},
+			#{outTradeNo},
+			#{status},
+			#{totalFee},
+			#{prepayId},
+			#{tradeType},
+			#{timeEnd}
+		)
+	</insert>
+
+	<!-- 支付成功 -->
+	<update id="updateTradeSuccess" parameterType="hashMap">
+		update sno_wechat_trade
+		set total_fee = #{total_fee},time_end = #{time_end},status = 2
+		where openid = #{openid} and out_trade_no = #{out_trade_no} and status = 1
+	</update>
+
+</mapper>

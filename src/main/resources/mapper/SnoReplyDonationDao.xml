@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoReplyDonationDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoReplyDonationPO">
+		select `id`,`reply_id`,`user_id`,`nickname`,`avatar`,`gift_id`,`gift_name`,`gift_num`,`gift_img`,`total_fee`,`pay_status`,`out_trade_no`,`create_time`
+		 from sno_reply_donation where id = #{value} and is_delete = 0
+	</select>
+
+	<sql id="filed">
+		`id`,`reply_id` replyId,`user_id` userId,`nickname`,`avatar`,`gift_id` giftId,`gift_name` giftName,`gift_num` giftNum,`gift_img` giftImg,`total_fee` totalFee,`pay_status` payStatus,`create_time` createTime
+	</sql>
+
+	<select id="listMapByReplyId" resultType="hashMap" parameterType="hashMap">
+		select
+		<include refid="filed" />
+		from sno_reply_donation
+		where reply_id = #{replyId} and is_delete = 0 and pay_status = 1
+		order by create_time desc
+		limit #{start},#{rowCount}
+	</select>
+
+	<select id="getCountByReplyId" resultType="Integer">
+		select count(*)
+		from sno_reply_donation
+		where reply_id = #{replyId} and is_delete = 0 and pay_status = 1
+	</select>
+	 
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoReplyDonationPO" useGeneratedKeys="true" keyProperty="id">
+		insert into sno_reply_donation
+		(
+			`reply_id`, 
+			`user_id`, 
+			`nickname`, 
+			`avatar`, 
+			`gift_id`, 
+			`gift_name`, 
+			`gift_num`, 
+			`gift_img`,
+			`total_fee`,
+			`pay_status`,
+			`out_trade_no`
+		)
+		values
+		(
+			#{replyId}, 
+			#{userId}, 
+			#{nickname}, 
+			#{avatar}, 
+			#{giftId}, 
+			#{giftName}, 
+			#{giftNum}, 
+			#{giftImg},
+			#{totalFee},
+			0,
+			#{outTradeNo}
+		)
+	</insert>
+
+	 <update id="updateDonateSuccess" parameterType="hashMap">
+		 update sno_reply_donation
+		 set pay_status = 1,total_fee = #{total_fee}
+		 where out_trade_no = #{out_trade_no} and pay_status = 0
+	 </update>
+
+	<select id="getByOutTradeNo" resultType="com.gfang.sevennineone.model.po.SnoReplyDonationPO">
+		select
+		<include refid="filed" />
+		from sno_reply_donation
+		where out_trade_no = #{outTradeNo}
+	</select>
+
+	<select id="listDonationByUser" resultType="hashMap" parameterType="hashMap">
+		select
+		<include refid="filed" />
+		from sno_reply_donation
+		where user_id = #{userId}
+		and is_delete = 0
+		and pay_status = 1
+		<if test="timeOption==1">
+			<![CDATA[and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(create_time)]]>   -- 7天内
+		</if>
+		<if test="timeOption==2">
+			<![CDATA[and DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(create_time)]]>   -- 30天内
+		</if>
+		<if test="timeOption==3">
+			<![CDATA[and YEAR(create_time)=YEAR(NOW())]]>   -- 1年内
+		</if>
+		<if test="orderOption==0">
+			order by create_time desc
+		</if>
+		<if test="orderOption==1">
+			order by total_fee desc
+		</if>
+		limit #{start},#{rowCount}
+	</select>
+
+	<select id="getCountByUser" parameterType="hashMap" resultType="Integer">
+		select count(*)
+		from sno_reply_donation
+		where user_id = #{userId}
+		and is_delete = 0
+		and pay_status = 1
+		<if test="timeOption==1">
+			<![CDATA[and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(create_time)]]>   -- 7天内
+		</if>
+		<if test="timeOption==2">
+			<![CDATA[and DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(create_time)]]>   -- 30天内
+		</if>
+		<if test="timeOption==3">
+			<![CDATA[and YEAR(create_time)=YEAR(NOW())]]>   -- 1年内
+		</if>
+	</select>
+
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoHomeCategoryDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoHomeCategoryPO">
+		select `id`,`name`,`url`,`sort`,`create_time`,`is_delete` from sno_home_category where id = #{value} and is_delete = 0;
+	</select>
+ 
+	 
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoHomeCategoryPO" useGeneratedKeys="true" keyProperty="id">
+		insert into sno_home_category
+		(
+			`name`, 
+			`url`,
+			`sort`
+		)
+		values
+		(
+			#{name}, 
+			#{url},
+			#{sort}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.gfang.sevennineone.model.po.SnoHomeCategoryPO">
+		update sno_home_category
+		<set>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="url != null">`url` = #{url}, </if>
+			<if test="sort != null">`sort` = #{sort}, </if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<select id="listHomeCategory" resultType="com.gfang.sevennineone.model.po.SnoHomeCategoryPO">
+		select `id`,`name`,`url` from sno_home_category where is_delete = 0 order by sort desc;
+	</select>
+	 
+
+</mapper>

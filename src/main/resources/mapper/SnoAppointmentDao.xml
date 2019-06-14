@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoAppointmentDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoAppointmentPO">
+		select
+		 `id`,
+		 `user_id`,
+		 `nick_name`,
+		 `activity_id`,
+		 `activity_name`,
+		 `merchant_id`,
+		 `merchant_name`,
+		 `subject_id`,
+		 `subject_name`,
+		 `reply_id`,
+		 `status`,
+		 `appointment_code`,
+		 `create_time`
+		 from sno_appointment where id = #{value}
+	</select>
+
+	<sql id="filed">
+			`id`,
+		 `user_id` userId,
+		 `nick_name` nickName,
+		 `activity_id` activityId,
+		 `activity_name` activityName,
+		 `merchant_id` merchantId,
+		 `merchant_name` merchantName,
+		 `subject_id` subjectId,
+		 `subject_name` subjectName,
+		 `reply_id` replyId,
+		 `status`,
+		 `appointment_code` appointmentCode,
+		 `create_time` createTime
+	</sql>
+	 
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoAppointmentPO" useGeneratedKeys="true" keyProperty="id">
+		insert into sno_appointment
+		(
+			`user_id`,
+			`nick_name`
+			 `activity_id`,
+			 `activity_name`,
+			 `merchant_id`,
+			 `merchant_name`,
+			 `subject_id`,
+			 `subject_name`,
+			 `reply_id`,
+			 `status`,
+			 `appointment_code`
+		)
+		values
+		(
+			#{userId},
+			#{nickName},
+			#{activityId},
+			#{activityName},
+			#{merchantId},
+			#{merchantName},
+			#{subjectId},
+			#{subjectName},
+			#{replyId},
+			0,
+			#{appointmentCode}
+		)
+	</insert>
+	 
+
+	<select id="listByUserId" resultType="com.gfang.sevennineone.model.po.SnoAppointmentPO">
+		select
+		<include refid="filed" />
+		from sno_appointment
+		where user_id = #{userId}
+	</select>
+
+	<select id="listByMerchantId" resultType="com.gfang.sevennineone.model.po.SnoAppointmentPO">
+		select
+		<include refid="filed" />
+		from sno_appointment
+		where merchant_id = #{value}
+	</select>
+
+	<update id="updateStatus">
+		update sno_appointment
+		set status = #{toStatus}
+		where status = #{fromStatus} and id = #{id}
+	</update>
+</mapper>
