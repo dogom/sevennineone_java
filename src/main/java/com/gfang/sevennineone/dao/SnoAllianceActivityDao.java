@@ -15,12 +15,16 @@ import java.util.Map;
 public interface SnoAllianceActivityDao {
     SnoAllianceActivityPO getById(Integer id);
 
-    long save(SnoAllianceActivityPO po);
+    Integer save(SnoAllianceActivityPO po);
     List<Map<String,Object>> listByIds(Integer[] ids);
 
     Integer getListActivityCount(HashMap<String, Object> paramMap);
 
     List<Map<String,Object>> listActivity(HashMap<String, Object> paramMap);
 
+    Integer getActivityCountByMap(HashMap<String, Object> paramMap);
+
     Map<String,Object> getMapById(Integer id);
+
+    Integer updateForAudit(Map<String, Object> paramMap);
 }

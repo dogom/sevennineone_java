@@ -28,5 +28,7 @@ public interface SnoUserService {
 
     List<SnoUserPO> listByOpenids(String[] openids);
 
+    List<SnoUserPO> listByIds(String[] ids);
+
     Integer updatePhone(String phone,String userId);
 }

@@ -79,4 +79,29 @@ public class SnoReplyServiceImpl implements SnoReplyService {
 	public List<Integer> listAppointmentA(String openid) {
 		return snoReplyDao.listAppointmentA(openid);
 	}
+
+	@Override
+	public List<Map<String,Object>> listMerchantReply(Map<String, Object> map) {
+		return snoReplyDao.listMerchantReply(map);
+	}
+
+	@Override
+	public Integer getMerchantReplyCount(Map<String, Object> map) {
+		return snoReplyDao.getMerchantReplyCount(map);
+	}
+
+	@Override
+	public Integer getMerchantTotalMoney(Map<String, Object> map) {
+		return snoReplyDao.getMerchantTotalMoney(map);
+	}
+
+	@Override
+	public List<Map<String, Object>> listReplyForSearch(Map<String, Object> map) {
+		return snoReplyDao.listReplyForSearch(map);
+	}
+
+	@Override
+	public void updateProgress(Integer replyId, int i) {
+		snoReplyDao.updateProgress(replyId,i);
+	}
 }

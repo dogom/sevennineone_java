@@ -23,6 +23,11 @@ public class SnoMerchantServiceImpl implements SnoMerchantService {
 	}
 
 	@Override
+	public Integer getMerchantCountByMap(Map<String, Object> map) {
+		return snoMerchantDao.getMerchantCountByMap(map);
+	}
+
+	@Override
 	public SnoMerchantPO getById(Integer id) {
 		return snoMerchantDao.getById(id);
 	}
@@ -59,7 +64,19 @@ public class SnoMerchantServiceImpl implements SnoMerchantService {
 	}
 
 	@Override
-	public Integer updateAuditStatus(Integer merchantId, Integer fromStatus, Integer toStatus) {
-		return snoMerchantDao.updateAuditStatus(merchantId, fromStatus, toStatus);
+	public Integer updateAuditStatus(Integer merchantId, Integer fromStatus,String auditFailMsg, Integer toStatus) {
+		return snoMerchantDao.updateAuditStatus(merchantId, fromStatus,auditFailMsg, toStatus);
 	}
+
+	@Override
+	public Integer updateAddressInfo(Integer id, String address, String bmapLoca) {
+		return snoMerchantDao.updateAddressInfo(id,address,bmapLoca);
+	}
+
+	@Override
+	public void updateHotNum(Integer merchantId, int i) {
+		snoMerchantDao.updateHotNum(merchantId,i);
+	}
+
+
 }

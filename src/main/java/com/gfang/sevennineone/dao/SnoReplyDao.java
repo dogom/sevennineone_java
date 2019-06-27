@@ -38,4 +38,12 @@ public interface SnoReplyDao {
     List<SnoReplyPO> getByIds(Set<Integer> set);
 
     List<Integer> listAppointmentA(String openid);
+
+    List<Map<String,Object>> listMerchantReply(Map<String,Object> map);
+    Integer getMerchantReplyCount(Map<String,Object> map);
+    Integer getMerchantTotalMoney(Map<String,Object> map);
+
+    List<Map<String,Object>> listReplyForSearch(Map<String,Object> map);
+
+    void updateProgress(@Param("replyId") Integer replyId,@Param("num") int i);
 }

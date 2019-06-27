@@ -16,6 +16,33 @@ public class SnoReplyVO implements Serializable{
     private Integer activityId;
     private Integer merchantId;
     private String lifePhoto;
+    private String mobile;
+    private Integer code;
+    private Integer smsId;
+
+    public Integer getSmsId() {
+        return smsId;
+    }
+
+    public void setSmsId(Integer smsId) {
+        this.smsId = smsId;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
+    }
 
     public String getChildName() {
         return childName;

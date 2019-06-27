@@ -131,6 +131,9 @@ public class SnoWechatController {
         SnoUserPO user = null;
         if (!StringUtils.isEmpty(userId)) {
             user = snoUserService.getByOpenId(userId);
+            if(!StringUtils.isEmpty(user.getMobile())){
+                user.setMobile(user.getMobile().substring(0,3)+"****"+user.getMobile().substring(7));
+            }
         }
         if(user!=null){
             apiResultVO.setData(new GsonBuilder().excludeFieldsWithoutExposeAnnotation().serializeNulls().create().toJson(user));
@@ -175,15 +178,17 @@ public class SnoWechatController {
         String outTradeNo = SnoUtil.getUniqueOrderId();
 
         SortedMap<Object, Object> packageParams = new TreeMap<Object, Object>();
+        Integer totalFee = donate.getGiftNum() * gift.getWorth();
+
         packageParams.put("appid",GlobalValue.APP_ID);
         packageParams.put("mch_id",GlobalValue.MCH_ID);
         packageParams.put("nonce_str",SnoUtil.getRandomString(32));
         packageParams.put("body", "趣教育平台礼物 " + gift.getName() + donate.getGiftNum() + "个");
         packageParams.put("out_trade_no",outTradeNo);
-        packageParams.put("total_fee","1");  //todo
+        packageParams.put("total_fee",String.valueOf(totalFee));
         packageParams.put("openid",user.getOpenid());
         packageParams.put("spbill_create_ip","47.94.249.68");
-        packageParams.put("notify_url","http://www.djtp.com/api/wechat/notify");
+        packageParams.put("notify_url","https://www.djtp.com/api/wechat/notify");
         packageParams.put("trade_type","JSAPI");
 
         String sign = SnoUtil.createSign(packageParams);
@@ -211,7 +216,7 @@ public class SnoWechatController {
         po.setOpenid(user.getOpenid());
         po.setOutTradeNo(outTradeNo);
         po.setStatus(1);
-        po.setTotalFee(1);//todo
+        po.setTotalFee(totalFee);
         po.setPrepayId(unifiedOrderMap.get("prepay_id"));
         po.setTradeType(unifiedOrderMap.get("trade_type"));
 
@@ -234,7 +239,7 @@ public class SnoWechatController {
 
             /** 3、返回值 */
             Map<String, Object> resMap = wxSmallPayByPrepayId(unifiedOrderMap.get("prepay_id"));
-            resMap.put("totalFee",1); //todo
+            resMap.put("totalFee",totalFee);
             apiResultVO.setData(resMap);
         }else{
             apiResultVO.setCode(-1);
@@ -279,6 +284,21 @@ public class SnoWechatController {
                     Integer j = snoReplyDonationService.updateDonateSuccess(wechatNotifyMap);
                     /** 3、累计礼物金额 */
                     Integer k = snoReplyService.updatePaidFee(Integer.parseInt(wechatNotifyMap.get("total_fee")),donationPO.getReplyId());
+
+                    try{
+                        /** 4、修改阶段 */
+                        Map<String, Object> reply = snoReplyService.getMapById(donationPO.getReplyId());
+                        Integer paidFee = (Integer) reply.get("paid_fee");
+                        Integer totalFee = (Integer) reply.get("total_fee");
+
+                        if (paidFee > 9900 && paidFee < totalFee / 2) {
+                            snoReplyService.updateProgress(donationPO.getReplyId(),2);
+                        }else if(paidFee > totalFee / 2){
+                            snoReplyService.updateProgress(donationPO.getReplyId(),3);
+                        }
+                    }catch (Exception e){
+
+                    }
                 }
                 SortedMap<Object,Object> res = new TreeMap<>();
                 res.put("return_code","SUCCESS");

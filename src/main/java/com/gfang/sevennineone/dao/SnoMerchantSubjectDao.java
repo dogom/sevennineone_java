@@ -30,4 +30,9 @@ public interface SnoMerchantSubjectDao{
     Integer update(SnoMerchantSubjectPO po);
 
     List<SnoMerchantSubjectPO> listByMerchantIds(Integer[] merchantIds);
+    List<SnoMerchantSubjectPO> listByIds(Integer[] ids);
+
+    Integer deleteSubject(Integer sid);
+
+
 }

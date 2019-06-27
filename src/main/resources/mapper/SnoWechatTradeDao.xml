@@ -9,7 +9,7 @@
 		from sno_wechat_trade where id = #{value}
 	</select>
 
-	<sql id="filed">`id`,`user_id` userId,`openid`,`out_trade_no` outTradeNo,`status`,`total_fee` totalFee,`prepay_id` prepayId,`trade_type` tradeType,`create_time` createTime,`time_end` timeEnd </sql>
+	<sql id="filed">`id`,`user_id` userId,`openid`,`out_trade_no` outTradeNo,`status`,`total_fee` totalFee,`prepay_id` prepayId,`trade_type` tradeType,DATE_FORMAT(`create_time`,'%Y-%m-%d %H:%i:%s') createTime,`time_end` timeEnd </sql>
 	 
 	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoWechatTradePO" useGeneratedKeys="true" keyProperty="id">
 		insert into sno_wechat_trade

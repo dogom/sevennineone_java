@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoMerchantImgDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoMerchantImgPO">
+		select `id`,`url`,`merchant_id`,`sort`,`create_time`,`is_delete` from sno_merchant_img where id = #{value}
+	</select>
+
+	<sql id="filed">
+		`id`,`url`,`merchant_id` merchantId,`sort`,`create_time` createTime
+	</sql>
+	 
+	<insert id="saveBatch" parameterType="list" useGeneratedKeys="true" keyProperty="id">
+		insert into sno_merchant_img
+		(
+			`url`,
+			`merchant_id`,
+			`sort`
+		)
+		values
+		<foreach collection ="list" item="item" index= "index" separator =",">
+			(
+				#{item.url},
+				#{item.merchantId},
+				#{item.sort}
+			)
+		</foreach >
+	</insert>
+	 
+	<select id="listByMerchantId" resultType="com.gfang.sevennineone.model.po.SnoMerchantImgPO">
+		select
+		<include refid="filed" />
+		from sno_merchant_img
+		where merchant_id = #{value} and is_delete = 0
+		order by sort
+
+	</select>
+	
+	 
+
+</mapper>

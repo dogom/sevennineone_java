@@ -62,13 +62,11 @@ public class SnoMerchantSubjectController {
 			subject.setmerchantId(merchant.getId());
 			subject.setUserId(user.getId());
 			subject.setStatus(1); //正常状态
+			subject.setSuitableAge(subject.getSuitableAge() + '岁'); //正常状态
 			subject.setAdvImg(SnoUtil.downloadWxImage(subject.getAdvImg()));
 			subject.setPrice(subject.getPrice() * 100);
 		}
 		Integer i = snoMerchantSubjectService.saveBatch(subjectPOList);
-
-		/** 3、将用户的入驻申请改成待审核 */
-		Integer j = snoMerchantService.updateAuditStatus(merchant.getId(), 0 , 1);
 
 		apiResultVO.setData(i == subjectPOList.size() ? i : 0);
 		return apiResultVO;
@@ -94,14 +92,35 @@ public class SnoMerchantSubjectController {
 			po.setUserId(user.getId());
 			po.setmerchantId(merchant.getId());
 			po.setStatus(1);
+			po.setSuitableAge(po.getSuitableAge() + '岁');
+			po.setPrice(po.getPrice() * 100);
 			po.setAdvImg(SnoUtil.downloadWxImage(po.getAdvImg()));
 			i = snoMerchantSubjectService.save(po);
 		}else{
+			po.setAdvImg(SnoUtil.downloadWxImage(po.getAdvImg()));
 			i = snoMerchantSubjectService.update(po);
 		}
 		apiResultVO.setData(i);
 		return apiResultVO;
 	}
 
+	// 删除
+	@GetMapping("deleteSubject")
+	public ApiResultVO deleteSubject(@LoginUser SnoUserPO user,
+									 @RequestParam("sid") Integer sid){
+		ApiResultVO apiResultVO = new ApiResultVO();
+
+		SnoMerchantSubjectPO subject = snoMerchantSubjectService.getById(sid);
+		if (subject != null) {
+			if (subject.getUserId().equals(user.getId())) {
+				Integer i = snoMerchantSubjectService.deleteSubject(sid);
+				apiResultVO.setData(i);
+			}else{
+				apiResultVO.setData(-1);
+			}
+		}
+
+		return apiResultVO;
+	}
 
 }

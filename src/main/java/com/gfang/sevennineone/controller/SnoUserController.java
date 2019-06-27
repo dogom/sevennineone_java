@@ -11,6 +11,7 @@ import com.gfang.sevennineone.common.SmsUtil;
 import com.gfang.sevennineone.model.po.SnoSmsDetailPO;
 import com.gfang.sevennineone.service.SnoSmsDetailService;
 import com.google.gson.Gson;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.stereotype.Controller;
@@ -46,13 +47,31 @@ public class SnoUserController {
 	public ApiResultVO sendSms(@RequestParam("phoneNum") String phoneNum){
 		ApiResultVO apiResultVO = new ApiResultVO();
 		Random random = new Random();
+		Integer smsId = sms(phoneNum, random);
+		apiResultVO.setData(smsId);
+		return apiResultVO;
+	}
+
+	@GetMapping("sendReplySms")
+	public ApiResultVO sendReplySms(@LoginUser SnoUserPO user, @RequestParam(value = "mobile", required = false) String mobile) {
+		ApiResultVO apiResultVO = new ApiResultVO();
+		mobile = StringUtils.isEmpty(user.getMobile()) ? mobile : user.getMobile();
+		if (mobile == null) {
+			apiResultVO.setCode(-1);
+		} else {
+			Random random = new Random();
+			Integer smsId = sms(mobile, random);
+			apiResultVO.setData(smsId);
+		}
+		return apiResultVO;
+	}
+
+	private Integer sms(@RequestParam("phoneNum") String phoneNum, Random random) {
 		String signName = "趣教育";
 		String codeTemplate = "SMS_117085077";
 		String param = "{\"code\":\"123456\"}".replace("123456",String.valueOf(random.nextInt(899999) + 100000));
 		SmsUtil.sendSms(phoneNum,param,signName,codeTemplate);
-		Integer smsId = snoSmsDetailService.save(new SnoSmsDetailPO(signName, codeTemplate, param));
-		apiResultVO.setData(smsId);
-		return apiResultVO;
+		return snoSmsDetailService.save(new SnoSmsDetailPO(signName, codeTemplate, param));
 	}
 
 	// 绑定手机号

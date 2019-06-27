@@ -61,4 +61,13 @@ public class SnoMerchantSubjectServiceImpl implements SnoMerchantSubjectService 
 	public List<SnoMerchantSubjectPO> listByMerchantIds(Integer[] merchantIds) {
 		return snoMerchantSubjectDao.listByMerchantIds(merchantIds);
 	}
+
+	@Override
+	public List<SnoMerchantSubjectPO> listByIds(Integer[] ids) {
+		return snoMerchantSubjectDao.listByIds(ids);
+	}
+	@Override
+	public Integer deleteSubject(Integer sid) {
+		return snoMerchantSubjectDao.deleteSubject(sid);
+	}
 }

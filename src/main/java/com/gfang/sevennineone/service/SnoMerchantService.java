@@ -15,6 +15,8 @@ import java.util.Map;
 public interface SnoMerchantService {
     List<Map<String,Object>> listMerchant(Map<String,Object> map);
 
+    Integer getMerchantCountByMap(Map<String,Object> map);
+
     SnoMerchantPO getById(Integer id);
     Map<String,Object> getMerchantById(Integer id);
 
@@ -28,5 +30,10 @@ public interface SnoMerchantService {
 
     Integer update(SnoMerchantPO po);
 
-    Integer updateAuditStatus(Integer merchantId,Integer fromStatus,Integer toStatus);
+    Integer updateAuditStatus(Integer merchantId,Integer fromStatus,String auditFailMsg,Integer toStatus);
+
+    Integer updateAddressInfo(Integer id, String address, String bmapLoca);
+
+    void updateHotNum(Integer merchantId, int i);
+
 }

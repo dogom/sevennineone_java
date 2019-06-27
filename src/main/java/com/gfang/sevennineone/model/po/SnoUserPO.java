@@ -26,6 +26,7 @@ public class SnoUserPO implements Serializable {
 	//真名
 	private String realname;
 	//电话号码
+	@Expose
 	private String mobile;
 	//头像
 	@Expose

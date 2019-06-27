@@ -8,7 +8,7 @@
 	</select>
  
 	<sql id="filed">
-		`id`,`openid`,`child_name` childName,`child_sex` childSex,`child_age` childAge,`school_info` schoolInfo,`subject_id` subjectId,`merchant_id` merchantId,`activity_id` activityId,`paid_fee` paidFee,`progress`,`total_fee` totalFee,`create_time` createTime
+		`id`,`openid`,`child_name` childName,`child_sex` childSex,`child_age` childAge,`school_info` schoolInfo,`subject_id` subjectId,`merchant_id` merchantId,`activity_id` activityId,`paid_fee` paidFee,`progress`,`total_fee` totalFee,DATE_FORMAT(`create_time`,'%Y-%m-%d %H:%i:%s') createTime
 	</sql>
 
 	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoReplyPO" useGeneratedKeys="true" keyProperty="id">
@@ -127,4 +127,39 @@
 		and openid = #{openid}
 		and is_delete = 0
 	</select>
+
+	<select id="listMerchantReply" parameterType="hashMap" resultType="hashMap">
+		select
+		<include refid="filed" />
+		from sno_reply
+		where merchant_id = #{merchantId} and is_delete = 0
+		order by create_time DESC
+		limit #{start},#{rowCount}
+	</select>
+
+	<select id="getMerchantReplyCount" parameterType="hashMap" resultType="integer">
+		select count(*)
+		from sno_reply
+		where merchant_id = #{merchantId} and is_delete = 0
+	</select>
+
+	<select id="getMerchantTotalMoney" parameterType="hashMap" resultType="integer">
+		select sum(paid_fee)
+		from sno_reply
+		where merchant_id = #{merchantId} and is_delete = 0
+	</select>
+
+	<select id="listReplyForSearch" resultType="hashMap" parameterType="hashMap">
+		select
+		<include refid="filed" />
+		from sno_reply
+		where is_delete = 0 and child_name like concat('%',#{word},'%')
+		and activity_id = #{aid}
+	</select>
+
+	<update id="updateProgress">
+		update sno_reply
+		set progress = #{num}
+		where id = #{replyId}
+	</update>
 </mapper>

@@ -34,7 +34,7 @@
 		 `reply_id` replyId,
 		 `status`,
 		 `appointment_code` appointmentCode,
-		 `create_time` createTime
+		 DATE_FORMAT(`create_time`,'%Y-%m-%d %H:%i:%s') createTime
 	</sql>
 	 
 	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoAppointmentPO" useGeneratedKeys="true" keyProperty="id">

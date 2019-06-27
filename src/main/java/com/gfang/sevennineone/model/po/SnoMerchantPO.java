@@ -21,6 +21,8 @@ public class SnoMerchantPO implements Serializable {
 	private String userId;
 	//机构名称
 	private String name;
+	//一句话宣传语
+	private String poster;
 	//机构简介
 	private String description;
 	//百度地图坐标
@@ -68,6 +70,14 @@ public class SnoMerchantPO implements Serializable {
 	//是否删除,0否1是
 	private Integer isDelete;
 
+
+	public String getPoster() {
+		return poster;
+	}
+
+	public void setPoster(String poster) {
+		this.poster = poster;
+	}
 
 	@Override
 	public String toString() {

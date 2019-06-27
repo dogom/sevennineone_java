@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public interface SnoAllianceActivityService {
 
-    ApiResultVO save(SnoAllianceActivityPO po);
+    Integer save(SnoAllianceActivityPO po);
     SnoAllianceActivityPO getById(Integer id);
 
     List<Map<String,Object>> listByIds(Integer[] ids);
@@ -25,5 +25,9 @@ public interface SnoAllianceActivityService {
 
     List<Map<String,Object>> listActivity(HashMap<String, Object> paramMap);
 
+    Integer getActivityCountByMap(HashMap<String, Object> paramMap);
+
     Map<String,Object> getMapById(Integer id);
+
+    Integer updateForAudit(Map<String, Object> paramMap);
 }

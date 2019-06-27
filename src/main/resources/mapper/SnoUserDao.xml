@@ -7,7 +7,7 @@
 		select `id`,`nickname`,`realname`,`mobile`,`avatar`,`sex`,`province`,`city`,`country`,`openid`,`union_id`,`merchant`,`create_time`,`is_delete` from sno_user where id = #{value}
 	</select>
 
-	 <sql id="filed">`id`,`nickname`,`avatar`,`sex`,`province`,`city`,`country`,`merchant`</sql>
+	 <sql id="filed">`id`,`mobile`,`nickname`,`avatar`,`sex`,`province`,`city`,`country`,`merchant`</sql>
 
 	<select id="getMapById" resultType="hashMap">
 		select
@@ -81,6 +81,7 @@
 			<if test="country != null">`country` = #{country}, </if>
 			<if test="headimgurl != null">`avatar` = #{headimgurl}, </if>
 			<if test="unionId != null">`union_id` = #{unionId}, </if>
+			<if test="merchant != null">`merchant` = #{merchant}, </if>
 		</set>
 		where openid = #{openid}
 	</update>
@@ -108,4 +109,15 @@
 			#{id}
 		</foreach>
 	</select>
+
+	<select id="listByIds" resultType="com.gfang.sevennineone.model.po.SnoUserPO">
+		select
+		<include refid="filed" /> ,openid
+		from sno_user
+		where id IN
+		<foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+
 </mapper>

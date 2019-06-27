@@ -19,9 +19,9 @@ public class SnoAllianceActivityServiceImpl implements SnoAllianceActivityServic
 	private SnoAllianceActivityDao snoAllianceActivityDao;
 
 	@Override
-	public ApiResultVO save(SnoAllianceActivityPO po) {
-		long i = snoAllianceActivityDao.save(po);
-		return new ApiResultVO();
+	public Integer save(SnoAllianceActivityPO po) {
+		Integer i = snoAllianceActivityDao.save(po);
+		return po.getId();
 	}
 
 	@Override
@@ -47,5 +47,15 @@ public class SnoAllianceActivityServiceImpl implements SnoAllianceActivityServic
 	@Override
 	public Map<String, Object> getMapById(Integer id) {
 		return snoAllianceActivityDao.getMapById(id);
+	}
+
+	@Override
+	public Integer getActivityCountByMap(HashMap<String, Object> paramMap) {
+		return snoAllianceActivityDao.getActivityCountByMap(paramMap);
+	}
+
+	@Override
+	public Integer updateForAudit(Map<String, Object> paramMap) {
+		return snoAllianceActivityDao.updateForAudit(paramMap);
 	}
 }

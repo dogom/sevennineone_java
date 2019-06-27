@@ -4,22 +4,23 @@
 <mapper namespace="com.gfang.sevennineone.dao.SnoMerchantDao">
 
 	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoMerchantPO">
-		select `id`,`user_id`,`name`,`description`,`bmap_loca`,`province`,`city`,`area`,`address`,`logo`,`banner`,`hot_num`,`reply_count`,`is_top`,`category_id`,`category_name`,`tel`,`vip_level`,`id_card_front`,`id_card_back`,`business_license`,`audit_status`,`audit_fail_msg`,`create_time`,`is_deposit`,`deposit_fee`,`is_delete` from sno_merchant where id = #{value} and is_delete = 0
+		select `id`,`user_id`,`name`,`poster`,`description`,`bmap_loca`,`province`,`city`,`area`,`address`,`logo`,`banner`,`hot_num`,`reply_count`,`is_top`,`category_id`,`category_name`,`tel`,`vip_level`,`id_card_front`,`id_card_back`,`business_license`,`audit_status`,`audit_fail_msg`,`create_time`,`is_deposit`,`deposit_fee`,`is_delete` from sno_merchant where id = #{value} and is_delete = 0
 	</select>
 
 	<select id="getMerchantById" resultType="hashMap">
-		select `id`,`user_id`,`name`,`description`,`bmap_loca`,`province`,`city`,`area`,`address`,`logo`,`banner`,`hot_num`,`tel`,`reply_count`,`is_top`,`category_id`,`category_name` from sno_merchant where id = #{value} and is_delete = 0
+		select `id`,`user_id`,`name`,`poster`,`description`,`bmap_loca`,`province`,`city`,`area`,`address`,`logo`,`banner`,`hot_num`,`tel`,`reply_count`,`is_top`,`category_id`,`category_name` from sno_merchant where id = #{value} and is_delete = 0
 	</select>
 
 	<sql id="filed">
-		`id`,`user_id` userId,`name`,`description`,`bmap_loca` bmapLoca,`province`,`city`,`area`,`address`,`logo`,`banner`,`tel`,`hot_num` hotNum,`reply_count` replyCount,`is_top` isTop,`category_id` categoryId,`category_name` categoryName,`business_license` businessLicense,`audit_status` auditStatus
+		`id`,`user_id` userId,`name`,`poster`,`description`,`bmap_loca` bmapLoca,`province`,`city`,`area`,`address`,`logo`,`banner`,`tel`,`hot_num` hotNum,`reply_count` replyCount,`is_top` isTop,`category_id` categoryId,`category_name` categoryName,`business_license` businessLicense,`audit_status` auditStatus
 	</sql>
 
 	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoMerchantPO" useGeneratedKeys="true" keyProperty="id">
 		insert into sno_merchant
 		(
 			`user_id`, 
-			`name`, 
+			`name`,
+			`poster`,
 			`description`, 
 			`bmap_loca`,
 			 `province`,
@@ -39,8 +40,9 @@
 		values
 		(
 			#{userId}, 
-			#{name}, 
-			#{description}, 
+			#{name},
+			#{poster},
+			#{description},
 			#{bmapLoca}, 
 			#{province},
 			#{city},
@@ -63,6 +65,7 @@
 		<set>
 			<if test="userId != null">`user_id` = #{userId}, </if>
 			<if test="name != null and name!=''">`name` = #{name}, </if>
+			<if test="poster != null and poster!=''">`poster` = #{poster}, </if>
 			<if test="description != null and description!=''">`description` = #{description}, </if>
 			<if test="bmapLoca != null and bmapLoca!=''">`bmap_loca` = #{bmapLoca}, </if>
 			<if test="province != null and province!=''">`province` = #{province}, </if>
@@ -92,24 +95,41 @@
 	 <select id="listMerchant" resultType="hashMap" parameterType="hashMap">
 		 select `id`,
 		 `name`,
+		 `poster`,
 		 `bmap_loca`,
 		 `province`,
+		 `description`,
 		 `city`,
 		 `area`,
 		 `address`,
+		 `tel`,
 		 `logo`,
 		 `banner`,
 		 `hot_num`,
          `reply_count`,
-		 `category_name`
-		 from sno_merchant where is_delete = 0 and audit_status = 2
+		 `category_name`,
+		 `audit_status` auditStatus,
+		 `audit_fail_msg` auditFailMsg,
+		 `business_license` businessLicense
+		 from sno_merchant where is_delete = 0
 		 <if test="categoryId != null">and category_id = #{categoryId}</if>
 		 <if test="province != null">and province = #{province}</if>
-		 <if test="city != null">and city = #{city}</if>
+		 <if test="city != null">and city like CONCAT(#{city},'%')</if>
 		 <if test="area != null">and area = #{area}</if>
+		 <if test="auditStatus != null">and audit_status = #{auditStatus}</if>
 		 order by is_top desc,hot_num desc
 		 limit #{start},#{rowCount}
 	 </select>
+
+	<select id="getMerchantCountByMap" resultType="Integer">
+		select count(*)
+		from sno_merchant where is_delete = 0
+		<if test="categoryId != null">and category_id = #{categoryId}</if>
+		<if test="province != null">and province = #{province}</if>
+		<if test="city != null">and city like CONCAT(#{city},'%')</if>
+		<if test="area != null">and area = #{area}</if>
+		<if test="auditStatus != null">and audit_status = #{auditStatus}</if>
+	</select>
 
 	<select id="listByIds" resultType="hashMap">
 		SELECT
@@ -137,7 +157,20 @@
 
 	<update id="updateAuditStatus">
 		update sno_merchant
-		set audit_status = ${toStatus}
+		set audit_status = ${toStatus},audit_fail_msg = #{auditFailMsg}
 		where id= #{merchantId} and audit_status = #{fromStatus}
 	</update>
+
+	<update id="updateAddressInfo">
+		update sno_merchant
+		set address = #{address},bmap_loca=#{bmapLoca}
+		where id = #{id}
+	</update>
+
+	<update id="updateHotNum">
+		update sno_merchant
+		set hot_num  = hot_num + #{num}
+		where id = #{merchantId}
+	</update>
+
 </mapper>

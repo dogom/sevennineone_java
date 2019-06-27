@@ -8,7 +8,7 @@
 	</select>
  
 	<sql id="filed">
-		`id`,`url`,`reply_id` replyId,`create_time` createTime
+		`id`,`url`,`reply_id` replyId,DATE_FORMAT(`create_time`,'%Y-%m-%d %H:%i:%s') createTime
 	</sql>
 
 	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoReplyImagePO" useGeneratedKeys="true" keyProperty="id">

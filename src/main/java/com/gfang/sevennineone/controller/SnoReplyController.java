@@ -10,8 +10,11 @@ import com.gfang.sevennineone.model.vo.SnoReplyVO;
 import com.gfang.sevennineone.service.*;
 import com.gfang.sevennineone.util.SnoUtil;
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +51,8 @@ public class SnoReplyController {
 	private SnoAllianceActivityService snoAllianceActivityService;
 	@Autowired
 	private SnoAllianceMerchantService snoAllianceMerchantService;
+	@Autowired
+	private SnoSmsDetailService snoSmsDetailService;
 
 	// 查看用户是否报名某个活动
 	@GetMapping("/getMyReplyByMId")
@@ -123,6 +128,37 @@ public class SnoReplyController {
 					}
 				}
 			}
+
+			List<SnoMerchantSubjectPO> subjectList = snoMerchantSubjectService.listByIds(
+					Lists.transform(list,
+							input -> input.get("subjectId")
+					).toArray(new Integer[list.size()])
+			);
+
+			for (Map<String, Object> reply : list) {
+				for (SnoMerchantSubjectPO subject : subjectList) {
+					if(reply.get("subjectId").equals(subject.getId())){
+						reply.put("subjectName",subject.getName());
+						break;
+					}
+				}
+			}
+
+			// 图片
+			List<SnoReplyImagePO> imageList =  snoReplyImageService.listByReplyIds(
+					Lists.transform(list,
+							input -> input.get("id")
+					).toArray(new Integer[list.size()])
+			);
+			for (Map<String, Object> replyMap : list) {
+				List<String> imageListProp = new ArrayList<>();
+				for (SnoReplyImagePO image : imageList) {
+					if(image.getReplyId().equals(replyMap.get("id"))){
+						imageListProp.add(image.getUrl());
+					}
+					replyMap.put("imageList",imageListProp);
+				}
+			}
 		}
 		Map<String, Object> resMap = new HashMap<>();
 		resMap.put("list",list);
@@ -134,38 +170,66 @@ public class SnoReplyController {
 
 	// 报名接口
 	@PostMapping("/reply")
+	@Transactional
 	public ApiResultVO reply(@RequestBody SnoReplyVO snoReplyVO, @LoginUser SnoUserPO user) throws IOException {
 		ApiResultVO apiResultVO = new ApiResultVO();
-		/** 1、保存基本信息 */
-		SnoReplyPO snoReplyPO = new SnoReplyPO();
-		BeanUtils.copyProperties(snoReplyVO,snoReplyPO);
-		if(snoReplyPO.getChildName()==null
-				|| snoReplyPO.getChildAge()==null
-				|| snoReplyPO.getChildSex()==null
-				|| snoReplyPO.getSchoolInfo()==null
-				|| snoReplyPO.getSubjectId()==null
-				|| snoReplyVO.getLifePhoto()==null
-				){
+		/** 0、验证手机验证码 */
+		if (snoReplyVO.getSmsId() == null) {
 			apiResultVO.setCode(-1);
-			apiResultVO.setMessage("参数错误");
+			apiResultVO.setMessage("验证码错误");
 			return apiResultVO;
 		}
-		snoReplyPO.setOpenid(user.getOpenid());
-		snoReplyPO.setPaidFee(0);
+		SnoSmsDetailPO sms = snoSmsDetailService.getById(snoReplyVO.getSmsId());
+		Gson gson = new Gson();
+		HashMap<String, String> map = gson.fromJson(sms.getParam(), HashMap.class);
+		if (!map.get("code").equals(snoReplyVO.getCode().toString())) {
+			apiResultVO.setCode(-1);
+			apiResultVO.setMessage("验证码错误");
+		}else{
+			if(StringUtils.isEmpty(user.getMobile())){
+				snoUserService.updatePhone(snoReplyVO.getMobile(),user.getId());
+			}
 
-		SnoMerchantSubjectPO subject = snoMerchantSubjectService.getById(snoReplyPO.getSubjectId());
-		snoReplyPO.setTotalFee(subject.getPrice());
+			/** 1、保存基本信息 */
+			SnoReplyPO snoReplyPO = new SnoReplyPO();
+			BeanUtils.copyProperties(snoReplyVO,snoReplyPO);
+			if(snoReplyPO.getChildName()==null
+					|| snoReplyPO.getChildAge()==null
+					|| snoReplyPO.getChildSex()==null
+					|| snoReplyPO.getSchoolInfo()==null
+					|| snoReplyPO.getSubjectId()==null
+					|| snoReplyVO.getLifePhoto()==null
+					){
+				apiResultVO.setCode(-1);
+				apiResultVO.setMessage("参数错误");
+				return apiResultVO;
+			}
+			snoReplyPO.setOpenid(user.getOpenid());
+			snoReplyPO.setPaidFee(0);
 
-		Long i = snoReplyService.save(snoReplyPO);
-		if (i > 0) {
-			apiResultVO.setData(i);
+			SnoMerchantSubjectPO subject = snoMerchantSubjectService.getById(snoReplyPO.getSubjectId());
+			snoReplyPO.setTotalFee(subject.getPrice());
 
-			/** 2、保存图片 */
-			String lifePhotoUrl = snoReplyVO.getLifePhoto();
-			SnoReplyImagePO image = new SnoReplyImagePO();
-			image.setUrl(SnoUtil.downloadWxImage(lifePhotoUrl));
-			image.setReplyId(i.intValue());
-			snoReplyImageService.save(image);
+			Long i = snoReplyService.save(snoReplyPO);
+			if (i > 0) {
+				apiResultVO.setData(i);
+
+				/** 2、保存图片 */
+				String lifePhotoUrl = snoReplyVO.getLifePhoto();
+				SnoReplyImagePO image = new SnoReplyImagePO();
+				image.setUrl(SnoUtil.downloadWxImage(lifePhotoUrl));
+				image.setReplyId(i.intValue());
+				snoReplyImageService.save(image);
+			}
+
+			try{
+				/** 3、记录报名次数 */
+				snoAllianceMerchantService.updateReplyCount(snoReplyVO.getActivityId(),snoReplyVO.getMerchantId());
+				/** 4、增加热度 */
+				snoMerchantService.updateHotNum(snoReplyVO.getMerchantId(), 5);
+			}catch (Exception e){
+
+			}
 		}
 
 		return apiResultVO;
@@ -264,6 +328,70 @@ public class SnoReplyController {
 		}else{
 			apiResultVO.setData(new Integer[]{});
 		}
+
+		return apiResultVO;
+	}
+
+	// 商家查看自己的报名
+	@GetMapping("listMerchantReply")
+	public ApiResultVO listMerchantReply(@LoginUser SnoUserPO user,
+										 @RequestParam(value = "current", required = false, defaultValue = "1") Integer current,
+										 @RequestParam(value = "rowCount", required = false, defaultValue = "10") Integer rowCount){
+		ApiResultVO apiResultVO = new ApiResultVO();
+
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("start",(current-1)*rowCount);
+		paramMap.put("rowCount",rowCount);
+
+		SnoMerchantPO userMerchant = snoMerchantService.getByUserId(user.getId());
+
+		paramMap.put("merchantId",userMerchant.getId());
+		Integer total = snoReplyService.getMerchantReplyCount(paramMap);
+		List<Map<String,Object>> list = snoReplyService.listMerchantReply(paramMap);
+
+		if(total>0){
+			// 图片
+			List<SnoReplyImagePO> imageList =  snoReplyImageService.listByReplyIds(
+					Lists.transform(list,
+							input -> input.get("id")
+					).toArray(new Integer[list.size()])
+			);
+			for (Map<String, Object> replyMap : list) {
+				List<String> imageListProp = new ArrayList<>();
+				for (SnoReplyImagePO image : imageList) {
+					if(image.getReplyId().equals(replyMap.get("id"))){
+						imageListProp.add(image.getUrl());
+					}
+					replyMap.put("imageList",imageListProp);
+				}
+			}
+
+			// 联系方式
+			List<SnoUserPO> userList = snoUserService.listByOpenids(
+					Lists.transform(list,
+							input -> input.get("openid")
+					).toArray(new String[list.size()])
+			);
+			for (Map<String, Object> replyMap : list) {
+				for (SnoUserPO userPO : userList) {
+					if(replyMap.get("openid").equals(userPO.getOpenid())){
+						replyMap.put("mobile",userPO.getMobile());
+					}
+				}
+			}
+		}
+
+
+
+
+		// 查询总价值
+		Integer totalMoney = snoReplyService.getMerchantTotalMoney(paramMap);
+
+		Map<String, Object> resMap = new HashMap<>();
+		resMap.put("total",total);
+		resMap.put("list",list);
+		resMap.put("totalMoney",totalMoney);
+		apiResultVO.setData(resMap);
 
 		return apiResultVO;
 	}

@@ -62,4 +62,9 @@ public class SnoUserServiceImpl implements SnoUserService {
 	public Integer updatePhone(String phone,String userId) {
 		return snoUserDao.updatePhone(phone,userId);
 	}
+
+	@Override
+	public List<SnoUserPO> listByIds(String[] ids) {
+		return snoUserDao.listByIds(ids);
+	}
 }

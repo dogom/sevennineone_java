@@ -9,7 +9,7 @@
 	</select>
 
 	<sql id="filed">
-		`id`,`reply_id` replyId,`user_id` userId,`nickname`,`avatar`,`gift_id` giftId,`gift_name` giftName,`gift_num` giftNum,`gift_img` giftImg,`total_fee` totalFee,`pay_status` payStatus,`create_time` createTime
+		`id`,`reply_id` replyId,`user_id` userId,`nickname`,`avatar`,`gift_id` giftId,`gift_name` giftName,`gift_num` giftNum,`gift_img` giftImg,`total_fee` totalFee,`pay_status` payStatus,DATE_FORMAT(`create_time`,'%Y-%m-%d %H:%i:%s') createTime
 	</sql>
 
 	<select id="listMapByReplyId" resultType="hashMap" parameterType="hashMap">

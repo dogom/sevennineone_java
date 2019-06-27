@@ -30,5 +30,7 @@ public interface SnoUserDao{
 
     List<SnoUserPO> listByOpenids(String[] openids);
 
+    List<SnoUserPO> listByIds(String[] ids);
+
     Integer updatePhone(@Param("phone") String phone,@Param("userId") String userId);
 }

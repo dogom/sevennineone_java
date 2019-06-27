@@ -10,6 +10,7 @@
 		`name`,
 		`logo`,
 		`poster`,
+		`description`,
 		`start_date`,
 		`end_date`,
 		`province`,
@@ -24,10 +25,12 @@
 	</select>
 
 	<sql id="flied">
-		`id`,`user_id` userId,`name`,`logo`,`poster`,`start_date` startDate,`end_date` endDate,`province`,
+		`id`,`user_id` userId,`name`,`logo`,`poster`,`description`,`start_date` startDate,`end_date` endDate,`province`,
 		`city`,
 		`area`,
-		`place_level` placeLevel
+		`place_level` placeLevel,
+		`status`, `audit_status` auditStatus,
+		`audit_fail_msg` auditFailMsg
 	</sql>
 
 	<select id="getMapById" resultType="hashMap">
@@ -54,6 +57,7 @@
 			`name`,
 			`logo`,
 			`poster`,
+			`description`,
 			`start_date`,
 			`end_date`,
 			`province`,
@@ -67,6 +71,7 @@
 			#{name},
 			#{logo},
 			#{poster},
+			#{description},
 			#{startDate},
 			#{endDate},
 			#{province},
@@ -99,7 +104,32 @@
 			<if test="city!=null and city!=''">and city = #{city}</if>
 			<if test="area!=null and area!=''">and area = #{area}</if>
 			<if test="placeLevel!=null">and placeLevel = #{placeLevel}</if>
+			<if test="status!=null">and status = #{status}</if>
+			<if test="auditStatus!=null">and audit_status = #{auditStatus}</if>
 		</where>
 		limit #{start},#{rowCount}
 	</select>
+
+	<select id="getActivityCountByMap" parameterType="hashMap" resultType="Integer">
+		select
+		count(*)
+		from sno_alliance_activity
+		<where>
+			is_delete = 0
+			<if test="name!=null and name!=''">and name like CONCAT('%',#{name},'%')</if>
+			<if test="province!=null and province!=''">and province = #{province}</if>
+			<if test="city!=null and city!=''">and city = #{city}</if>
+			<if test="area!=null and area!=''">and area = #{area}</if>
+			<if test="placeLevel!=null">and placeLevel = #{placeLevel}</if>
+			<if test="status!=null">and status = #{status}</if>
+			<if test="auditStatus!=null">and audit_status = #{auditStatus}</if>
+		</where>
+	</select>
+
+	<update id="updateForAudit" parameterType="hashMap">
+		update sno_alliance_activity
+		set audit_status = #{toStatus},audit_fail_msg = #{auditFailMsg}
+		<if test="toStatus == 2">,status = 1</if>
+		where id = #{activityId} and audit_status = #{fromStatus}
+	</update>
 </mapper>

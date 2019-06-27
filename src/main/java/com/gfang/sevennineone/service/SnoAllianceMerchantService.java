@@ -1,7 +1,7 @@
 package com.gfang.sevennineone.service;
 
-import com.gfang.sevennineone.common.ApiResultVO;
 import com.gfang.sevennineone.model.po.SnoAllianceMerchantPO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -15,9 +15,18 @@ import java.util.Map;
  */
 public interface SnoAllianceMerchantService {
 
-    ApiResultVO save(SnoAllianceMerchantPO po);
+    Integer save(SnoAllianceMerchantPO po);
     SnoAllianceMerchantPO getById(Integer id);
     List<SnoAllianceMerchantPO> listByParams(Map<String,Object> map);
 
     Map<String,Object> getByAidAndMid(Integer aid, Integer mid);
+
+    Map<String,Object> getExistsByAidAndMid(Integer aid, Integer mid);
+
+
+    void updateAfterAudit(Integer merchantId);
+
+    void updateReplyCount(Integer activityId, Integer merchantId);
+
+    List<Map<String,Object>> listMerchantForSearch(Map<String,Object> map);
 }

@@ -7,7 +7,7 @@
 		select `id`,`name`,`img`,`worth`,`create_time`,`is_delete` from sno_gift where id = #{value}
 	</select>
 
-	<sql id="filed">`id`,`name`,`img`,`worth`,`create_time` createTime</sql>
+	<sql id="filed">`id`,`name`,`img`,`worth`,DATE_FORMAT(`create_time`,'%Y-%m-%d %H:%i:%s') createTime</sql>
 	 
 	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoGiftPO" useGeneratedKeys="true" keyProperty="id">
 		insert into sno_gift

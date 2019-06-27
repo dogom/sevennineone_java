@@ -15,9 +15,17 @@ import java.util.Map;
 public interface SnoAllianceMerchantDao {
     SnoAllianceMerchantPO getById(Integer id);
 
-    long save(SnoAllianceMerchantPO po);
+    Integer save(SnoAllianceMerchantPO po);
 
     List<SnoAllianceMerchantPO> listByParams(Map<String,Object> map);
 
     Map<String,Object> getByAidAndMid(@Param("activityId") Integer activityId,@Param("merchantId") Integer merchantId);
+
+    Map<String,Object> getExistsByAidAndMid(@Param("activityId") Integer activityId,@Param("merchantId") Integer merchantId);
+
+    void updateAfterAudit(Integer merchantId);
+
+    void updateReplyCount(@Param("activityId") Integer activityId,@Param("merchantId") Integer merchantId);
+
+    List<Map<String,Object>> listMerchantForSearch(Map<String,Object> map);
 }

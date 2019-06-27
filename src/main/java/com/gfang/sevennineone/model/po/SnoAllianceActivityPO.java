@@ -1,5 +1,8 @@
 package com.gfang.sevennineone.model.po;
 
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -14,7 +17,10 @@ public class SnoAllianceActivityPO implements Serializable {
     private String name; //活动名称
     private String logo; //活动logo
     private String poster; //活动标语
+    private String description; //活动介绍
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     private Date startDate; //活动开始时间
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     private Date endDate; //活动结束时间
     private String province; //省
     private String city; //市
@@ -25,6 +31,14 @@ public class SnoAllianceActivityPO implements Serializable {
     private String auditFailMsg; //审核不通过留言
     private Date createTime; //创建时间
     private Integer isDelete; //是否删除
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public Integer getId() {
         return id;

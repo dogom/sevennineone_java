@@ -1,5 +1,8 @@
 package com.gfang.sevennineone.model.po;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -25,14 +28,6 @@ public class SnoMerchantSubjectPO implements Serializable {
 	private Integer teacherId;
 	//课程名称
 	private String name;
-	//课程开始日期
-	private Date startDate;
-	//课程结束日期
-	private Date endDate;
-	//上课时间
-	private String startTime;
-	//下课时间
-	private String endTime;
 	//时长，单位：分钟
 	private Integer during;
 	//价格
@@ -56,6 +51,7 @@ public class SnoMerchantSubjectPO implements Serializable {
 	//课程说明
 	private String description;
 	//创建时间
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date createTime;
 	//是否删除,0否1是
 	private Integer isDelete;
@@ -119,54 +115,6 @@ public class SnoMerchantSubjectPO implements Serializable {
 	 */
 	public String getName() {
 		return name;
-	}
-	/**
-	 * 设置：课程开始日期
-	 */
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
-	/**
-	 * 获取：课程开始日期
-	 */
-	public Date getStartDate() {
-		return startDate;
-	}
-	/**
-	 * 设置：课程结束日期
-	 */
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
-	/**
-	 * 获取：课程结束日期
-	 */
-	public Date getEndDate() {
-		return endDate;
-	}
-	/**
-	 * 设置：上课时间
-	 */
-	public void setStartTime(String startTime) {
-		this.startTime = startTime;
-	}
-	/**
-	 * 获取：上课时间
-	 */
-	public String getStartTime() {
-		return startTime;
-	}
-	/**
-	 * 设置：下课时间
-	 */
-	public void setEndTime(String endTime) {
-		this.endTime = endTime;
-	}
-	/**
-	 * 获取：下课时间
-	 */
-	public String getEndTime() {
-		return endTime;
 	}
 	/**
 	 * 设置：时长，单位：分钟

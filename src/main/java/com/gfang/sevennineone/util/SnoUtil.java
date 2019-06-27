@@ -3,9 +3,11 @@ package com.gfang.sevennineone.util;
 import com.gfang.sevennineone.cache.LocalCache;
 import com.gfang.sevennineone.common.GlobalValue;
 import com.gfang.sevennineone.common.OSSUtil;
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cglib.beans.BeanMap;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.w3c.dom.Node;
@@ -187,10 +189,16 @@ public class SnoUtil {
 
     /** 微信服务器图片下载 */
     public static String downloadWxImage(String serverId) throws IOException {
-        String accessToken = getAccessToken();
-        logger.info("accessToken:{}",accessToken);
-        String url = "http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=" + accessToken + "&media_id=" + serverId;
-        return OSSUtil.uploadFile("logo", new URL(url).openStream());
+        String result;
+        if(serverId.startsWith("http")){
+            result = serverId;
+        }else{
+            String accessToken = getAccessToken();
+            logger.info("accessToken:{}",accessToken);
+            String url = "http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=" + accessToken + "&media_id=" + serverId;
+            result = OSSUtil.uploadFile("logo", new URL(url).openStream());
+        }
+        return result;
     }
 
 
@@ -242,6 +250,18 @@ public class SnoUtil {
         }
 
         return response;
+    }
+
+    // beantomap
+    public static <T> Map<String, Object> beanToMap(T bean) {
+        Map<String, Object> map = Maps.newHashMap();
+        if (bean != null) {
+            BeanMap beanMap = BeanMap.create(bean);
+            for (Object key : beanMap.keySet()) {
+                map.put(key+"", beanMap.get(key));
+            }
+        }
+        return map;
     }
 
 }

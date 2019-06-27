@@ -3,24 +3,18 @@ package com.gfang.sevennineone.controller;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.gfang.sevennineone.anotation.LoginUser;
 import com.gfang.sevennineone.common.ApiResultVO;
-import com.gfang.sevennineone.model.po.SnoAllianceActivityPO;
-import com.gfang.sevennineone.model.po.SnoAllianceMerchantPO;
-import com.gfang.sevennineone.model.po.SnoMerchantSubjectPO;
-import com.gfang.sevennineone.model.po.SnoUserPO;
-import com.gfang.sevennineone.service.SnoAllianceActivityService;
-import com.gfang.sevennineone.service.SnoAllianceMerchantService;
-import com.gfang.sevennineone.service.SnoMerchantService;
-import com.gfang.sevennineone.service.SnoMerchantSubjectService;
+import com.gfang.sevennineone.model.po.*;
+import com.gfang.sevennineone.service.*;
+import com.gfang.sevennineone.util.SnoUtil;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -42,6 +36,12 @@ public class SnoAllianceController {
 	private SnoAllianceMerchantService snoAllianceMerchantService;
 	@Autowired
 	private SnoMerchantSubjectService snoMerchantSubjectService;
+	@Autowired
+	private SnoReplyService snoReplyService;
+	@Autowired
+	private SnoReplyImageService snoReplyImageService;
+	@Autowired
+	private SnoUserService snoUserService;
 
 	// 查找商家参与的活动
 	@GetMapping("/listByMerchantId")
@@ -105,24 +105,26 @@ public class SnoAllianceController {
 		// 活动商家详情
 		Map<String, Object> paramMap = new HashMap<>();
 		paramMap.put("activityId",id);
+		paramMap.put("status",1);
 		List<SnoAllianceMerchantPO> aMerchantList = snoAllianceMerchantService.listByParams(paramMap);
-		List<Map<String,Object>> merchantList =  snoMerchantService.listByIds(
-				Lists.transform(aMerchantList,
-						input -> input.getMerchantId()
-				).toArray(new Integer[aMerchantList.size()])
-		);
-
-		for (Map<String, Object> merchant : merchantList) {
-			for (SnoAllianceMerchantPO allianceMerchantPO : aMerchantList) {
-				if (((Integer) merchant.get("id")).equals(allianceMerchantPO.getMerchantId())) {
-					merchant.put("experienceNum", allianceMerchantPO.getExperienceNum());
-					break;
+		if(aMerchantList.size()>0){
+			List<Map<String,Object>> merchantList =  snoMerchantService.listByIds(
+					Lists.transform(aMerchantList,
+							input -> input.getMerchantId()
+					).toArray(new Integer[aMerchantList.size()])
+			);
+			for (Map<String, Object> merchant : merchantList) {
+				for (SnoAllianceMerchantPO allianceMerchantPO : aMerchantList) {
+					if (((Integer) merchant.get("id")).equals(allianceMerchantPO.getMerchantId())) {
+						merchant.put("experienceNum", allianceMerchantPO.getExperienceNum());
+						break;
+					}
 				}
 			}
+			activity.put("merchantList",merchantList);
+		}else{
+			activity.put("merchantList",new String[]{});
 		}
-
-		activity.put("merchantList",merchantList);
-
 
 		apiResultVO.setData(activity);
 		return apiResultVO;
@@ -180,21 +182,180 @@ public class SnoAllianceController {
 		paramMap.put("activityId",aid);
 		paramMap.put("status",1);
 		List<SnoAllianceMerchantPO> snoAllianceMerchantPOS = snoAllianceMerchantService.listByParams(paramMap);
-		List<Map<String, Object>> merchantMaps = snoMerchantService.listByIds(
-				Lists.transform(snoAllianceMerchantPOS,
-						input -> input.getMerchantId()
-				).toArray(new Integer[snoAllianceMerchantPOS.size()])
-		);
+		if(snoAllianceMerchantPOS.size()>0){
+			List<Map<String, Object>> merchantMaps = snoMerchantService.listByIds(
+					Lists.transform(snoAllianceMerchantPOS,
+							input -> input.getMerchantId()
+					).toArray(new Integer[snoAllianceMerchantPOS.size()])
+			);
 
-		merchantMaps.sort(new Comparator<Map<String, Object>>() {
-			@Override
-			public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-				return (int)o1.get("hotNum") - (int)o2.get("hotNum") ;
+			merchantMaps.sort(new Comparator<Map<String, Object>>() {
+				@Override
+				public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+					return (int)o2.get("hotNum") - (int)o1.get("hotNum") ;
+				}
+			});
+
+			apiResultVO.setData(merchantMaps);
+		}else{
+			apiResultVO.setData(new String[]{});
+		}
+
+
+
+		return apiResultVO;
+	}
+
+	// 加入活动
+	@GetMapping("joinActivity")
+	public ApiResultVO joinActivity(@RequestParam("experienceNum") Integer experienceNum,
+									@LoginUser SnoUserPO user,
+									@RequestParam("aid") Integer aid){
+		ApiResultVO apiResultVO = new ApiResultVO();
+		SnoMerchantPO merchant = snoMerchantService.getByUserId(user.getId());
+		if (merchant != null) {
+			SnoAllianceMerchantPO aMerchant = new SnoAllianceMerchantPO();
+			aMerchant.setActivityId(aid);
+			aMerchant.setMerchantId(merchant.getId());
+			aMerchant.setStatus(
+					merchant.getAuditStatus() == 2
+							? 1
+							: 0);
+			aMerchant.setExperienceNum(experienceNum);
+			snoAllianceMerchantService.save(aMerchant);
+		}else{
+			apiResultVO.setCode(-1);
+			apiResultVO.setMessage("找不到商家");
+		}
+
+		return apiResultVO;
+	}
+
+	// 查询商家是否加入活动
+	@GetMapping("getExistsByAidAndMid")
+	public ApiResultVO getExistsByAidAndMid(@LoginUser SnoUserPO user,
+											@RequestParam("aid") Integer aid){
+		ApiResultVO apiResultVO = new ApiResultVO();
+		SnoMerchantPO merchant = snoMerchantService.getByUserId(user.getId());
+		apiResultVO.setData(false);
+		if(merchant!=null){
+			Map<String, Object> existsByAidAndMid = snoAllianceMerchantService.getExistsByAidAndMid(aid, merchant.getId());
+			apiResultVO.setData(existsByAidAndMid!=null);
+		}
+		return apiResultVO;
+	}
+
+	// 增加活动
+	@PostMapping("addActivity")
+	public ApiResultVO addActivity(@LoginUser SnoUserPO user,
+								   @RequestBody SnoAllianceActivityPO activityPO) throws IOException {
+		ApiResultVO apiResultVO = new ApiResultVO();
+		activityPO.setUserId(user.getId());
+		activityPO.setPlaceLevel(StringUtils.isEmpty(activityPO.getArea())?2:3);
+		activityPO.setLogo(SnoUtil.downloadWxImage(activityPO.getLogo()));
+
+		Integer i = snoAllianceActivityService.save(activityPO);
+		apiResultVO.setData(i);
+		return apiResultVO;
+	}
+
+
+	// 查找活动 审核
+	@GetMapping("listActivityForAudit")
+	public ApiResultVO listActivityForAudit(@RequestParam("auditStatus") Integer auditStatus,
+											@RequestParam(value = "current", defaultValue = "1") Integer current,
+											@RequestParam(value = "rowCount", defaultValue = "10") Integer rowCount){
+		ApiResultVO apiResultVO = new ApiResultVO();
+
+		HashMap<String, Object> paramMap = new HashMap<>();
+		if(auditStatus!=0){
+			paramMap.put("auditStatus",auditStatus);
+		}
+		paramMap.put("start",(current-1)*rowCount);
+		paramMap.put("rowCount",rowCount);
+		List<Map<String, Object>> activityList = snoAllianceActivityService.listActivity(paramMap);
+		Integer total = snoAllianceActivityService.getActivityCountByMap(paramMap);
+
+		if(total>0){
+			List<SnoUserPO> userList = snoUserService.listByIds(
+					Lists.transform(activityList,
+							input -> input.get("userId")
+					).toArray(new String[activityList.size()])
+			);
+
+			for (Map<String, Object> activity : activityList) {
+				for (SnoUserPO userPO : userList) {
+					if(activity.get("userId").equals(userPO.getId())){
+						activity.put("userinfo",userPO);
+						break;
+					}
+				}
 			}
-		});
+		}
 
-		apiResultVO.setData(merchantMaps);
+		Map<String, Object> resMap = new HashMap<>();
+		resMap.put("list",activityList);
+		resMap.put("total",total);
 
+		apiResultVO.setData(resMap);
+		return apiResultVO;
+	}
+
+	// 审核活动
+	@GetMapping("auditActivity")
+	public ApiResultVO auditActivity(@RequestParam("activityId") Integer activityId,
+									 @RequestParam("auditStatus") Integer auditStatus,
+									 @RequestParam(value="auditFailMsg",required = false) String auditFailMsg){
+		ApiResultVO apiResultVO = new ApiResultVO();
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("activityId",activityId);
+		paramMap.put("auditFailMsg",auditFailMsg);
+		paramMap.put("fromStatus",1);
+		paramMap.put("toStatus",auditStatus);
+
+		Integer i = snoAllianceActivityService.updateForAudit(paramMap);
+		apiResultVO.setData(i);
+
+		return apiResultVO;
+	}
+
+	// 搜索商家或学生
+	@GetMapping("search")
+	public ApiResultVO search(@RequestParam("word") String word,
+							  @RequestParam("aid") Integer aid){
+		ApiResultVO apiResultVO = new ApiResultVO();
+		// 商家
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("aid",aid);
+		paramMap.put("word",word);
+
+		List<Map<String, Object>> merchantList = snoAllianceMerchantService.listMerchantForSearch(paramMap);
+
+		List<Map<String, Object>> childList = snoReplyService.listReplyForSearch(paramMap);
+
+		if(childList.size()>0){
+			// 图片
+			List<SnoReplyImagePO> imageList =  snoReplyImageService.listByReplyIds(
+					Lists.transform(childList,
+							input -> input.get("id")
+					).toArray(new Integer[childList.size()])
+			);
+			for (Map<String, Object> replyMap : childList) {
+				List<String> imageListProp = new ArrayList<>();
+				for (SnoReplyImagePO image : imageList) {
+					if(image.getReplyId().equals(replyMap.get("id"))){
+						imageListProp.add(image.getUrl());
+					}
+					replyMap.put("imageList",imageListProp);
+				}
+			}
+		}
+
+		Map<String, Object> resMap = new HashMap<>();
+		resMap.put("childList",childList);
+		resMap.put("merchantList",merchantList);
+
+		apiResultVO.setData(resMap);
 		return apiResultVO;
 	}
 }

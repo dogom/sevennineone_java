@@ -17,8 +17,18 @@ public class SnoAllianceMerchantPO implements Serializable {
     private String auditFailMsg; //审核失败留言
     private Date auditTime; //审核通过时间
     private Integer experienceNum; //联盟卡体验次数
+    private Integer replyCount; // 报名人数
     private Date createTime; //创建时间
     private Integer isDelete; //是否删除
+
+
+    public Integer getReplyCount() {
+        return replyCount;
+    }
+
+    public void setReplyCount(Integer replyCount) {
+        this.replyCount = replyCount;
+    }
 
     public Integer getId() {
         return id;

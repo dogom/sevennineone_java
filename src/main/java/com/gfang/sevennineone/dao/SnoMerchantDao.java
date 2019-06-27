@@ -20,6 +20,7 @@ public interface SnoMerchantDao{
 	Map<String,Object> getMerchantById(Integer id);
 
 	List<Map<String,Object>> listMerchant(Map<String,Object> map);
+    Integer getMerchantCountByMap(Map<String,Object> map);
 
     List<Map<String,Object>> listByIds(Integer[] ids);
 
@@ -31,5 +32,10 @@ public interface SnoMerchantDao{
 
     Integer update(SnoMerchantPO po);
 
-    Integer updateAuditStatus(@Param("merchantId") Integer merchantId,@Param("fromStatus") Integer fromStatus,@Param("toStatus") Integer toStatus);
+    Integer updateAuditStatus(@Param("merchantId") Integer merchantId,@Param("fromStatus") Integer fromStatus,@Param("auditFailMsg") String auditFailMsg,@Param("toStatus") Integer toStatus);
+
+    Integer updateAddressInfo(@Param("id") Integer id,@Param("address") String address,@Param("bmapLoca") String bmapLoca);
+
+    void updateHotNum(@Param("merchantId") Integer merchantId,@Param("num") int num);
+
 }

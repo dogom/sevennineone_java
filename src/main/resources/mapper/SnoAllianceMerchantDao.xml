@@ -13,6 +13,7 @@
 		`audit_fail_msg`,
 		`audit_time`,
 		`experience_num`,
+		`reply_count`,
 		`create_time`,
 		`is_delete` from sno_alliance_merchant where id = #{value} and is_delete = 0
 	</select>
@@ -21,7 +22,8 @@
 		`id`,
 		`merchant_id` merchantId,
 		`activity_id` activityId,
-		`experience_num` experienceNum
+		`experience_num` experienceNum,
+		`reply_count` replyCount
 	</sql>
 
 	<select id="listByParams" resultType="com.gfang.sevennineone.model.po.SnoAllianceMerchantPO" parameterType="hashMap">
@@ -40,13 +42,17 @@
 		(
 			`merchant_id`,
 			`activity_id`,
-			`experience_num`
+			`status`,
+			`experience_num`,
+			`reply_count`
 		)
 		values
 		(
 			#{merchantId},
 			#{activityId},
-			#{experienceNum}
+			#{status},
+			#{experienceNum},
+			0
 		)
 	</insert>
 
@@ -55,5 +61,36 @@
 		<include refid="filed" />
 		from sno_alliance_merchant
 		where is_delete = 0 and status = 1 and merchant_id = #{merchantId} and activity_id = #{activityId}
+	</select>
+
+	<select id="getExistsByAidAndMid" resultType="hashMap">
+		select
+		<include refid="filed" />
+		from sno_alliance_merchant
+		where is_delete = 0 and merchant_id = #{merchantId} and activity_id = #{activityId}
+	</select>
+
+	<update id="updateReplyCount">
+		update sno_alliance_merchant
+		set reply_count = reply_count + 1
+		where merchant_id = #{merchantId} and activity_id = #{activityId}
+	</update>
+
+
+	<update id="updateAfterAudit">
+		update sno_alliance_merchant set status = 1 where merchant_id = #{merchantId}
+	</update>
+
+	<select id="listMerchantForSearch" resultType="hashMap">
+		select a.id,
+		 	a.name,
+		 	a.description,
+		 	a.address,
+		 	a.logo,
+		 	a.hot_num hotNum,
+		 	a.category_name categoryName,
+		 	b.reply_count replyCount
+		from sno_merchant a,sno_alliance_merchant b where b.activity_id = #{aid} and a.name like  CONCAT('%',#{word},'%') and a.id = b.merchant_id
+		and a.is_delete = 0 and a.audit_status = 2 and b.is_delete = 0 and b.status = 1
 	</select>
 </mapper>
