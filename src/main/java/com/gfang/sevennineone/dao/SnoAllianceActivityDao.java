@@ -27,4 +27,6 @@ public interface SnoAllianceActivityDao {
     Map<String,Object> getMapById(Integer id);
 
     Integer updateForAudit(Map<String, Object> paramMap);
+
+    void update(SnoAllianceActivityPO activityPO);
 }

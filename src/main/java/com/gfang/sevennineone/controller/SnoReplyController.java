@@ -250,6 +250,27 @@ public class SnoReplyController {
 		SnoMerchantPO merchant = snoMerchantService.getById((Integer) reply.get("merchantId"));
 		reply.put("categoryName",merchant.getCategoryName());
 		reply.put("merchantName",merchant.getName());
+		// 课程信息
+		SnoMerchantSubjectPO subject = snoMerchantSubjectService.getById((Integer) reply.get("subjectId"));
+		reply.put("subjectName",subject.getName());
+		// 活动信息与活动商家
+		SnoAllianceActivityPO activity = snoAllianceActivityService.getById((Integer) reply.get("activityId"));
+		reply.put("activityDescription",activity.getDescription());
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap.put("status",1);
+		paramMap.put("activityId",activity.getId());
+		List<SnoAllianceMerchantPO> aMerchantList = snoAllianceMerchantService.listByParams(paramMap);
+		if(aMerchantList.size()>0){
+			List<Map<String, Object>> merchantList = snoMerchantService.listByIds(
+					Lists.transform(aMerchantList,
+							input -> input.getMerchantId()
+					).toArray(new Integer[aMerchantList.size()])
+			);
+			reply.put("merchantList",merchantList);
+		}else{
+			reply.put("merchantList",new String[]{});
+		}
+
 
 		apiResultVO.setData(reply);
 

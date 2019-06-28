@@ -58,4 +58,9 @@ public class SnoAllianceActivityServiceImpl implements SnoAllianceActivityServic
 	public Integer updateForAudit(Map<String, Object> paramMap) {
 		return snoAllianceActivityDao.updateForAudit(paramMap);
 	}
+
+	@Override
+	public void update(SnoAllianceActivityPO activityPO) {
+		snoAllianceActivityDao.update(activityPO);
+	}
 }

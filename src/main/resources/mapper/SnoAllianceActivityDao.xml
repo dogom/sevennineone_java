@@ -81,6 +81,24 @@
 		)
 	</insert>
 
+	<update id="update">
+		update sno_alliance_activity
+		<set>
+			<if test="userId!= null">`user_id` = #{userId}, </if>
+			<if test="name!= null">`name` = #{name}, </if>
+			<if test="logo!= null">`logo` = #{logo}, </if>
+			<if test="poster!= null">`poster` = #{poster}, </if>
+			<if test="description!= null">`description` = #{description}, </if>
+			<if test="startDate!= null">`start_date` = #{startDate}, </if>
+			<if test="endDate!= null">`end_date` = #{endDate}, </if>
+			<if test="province!= null">`province` = #{province}, </if>
+			<if test="city!= null">`city` = #{city}, </if>
+			<if test="area!= null">`area` = #{area}, </if>
+			<if test="placeLevel!= null">`place_level` = #{placeLevel}, </if>
+		</set>
+		where id = #{id}
+	</update>
+
 	<select id="getListActivityCount" resultType="Integer" parameterType="hashMap">
 		select count(*) from sno_alliance_activity
 		<where>
@@ -106,6 +124,7 @@
 			<if test="placeLevel!=null">and placeLevel = #{placeLevel}</if>
 			<if test="status!=null">and status = #{status}</if>
 			<if test="auditStatus!=null">and audit_status = #{auditStatus}</if>
+			<if test="userId!=null and userId!=''">and user_id = #{userId}</if>
 		</where>
 		limit #{start},#{rowCount}
 	</select>
@@ -123,6 +142,7 @@
 			<if test="placeLevel!=null">and placeLevel = #{placeLevel}</if>
 			<if test="status!=null">and status = #{status}</if>
 			<if test="auditStatus!=null">and audit_status = #{auditStatus}</if>
+			<if test="userId!=null and userId!=''">and user_id = #{userId}</if>
 		</where>
 	</select>
 

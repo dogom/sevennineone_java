@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoArticleDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoArticlePO">
+		select `id`,`user_id`,`title`,`page_text`,`is_show`,`create_time` from sno_article where id = #{value}
+	</select>
+ 
+	 
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoArticlePO" useGeneratedKeys="true" keyProperty="id">
+		insert into sno_article
+		(
+			`user_id`,`title`,`page_text`
+		)
+		values
+		(
+			#{userId},
+			#{title},
+			#{pageText}
+		)
+	</insert>
+
+	<select id="listByMap" parameterType="hashMap" resultType="com.gfang.sevennineone.model.po.SnoArticlePO">
+		select *
+		from sno_article
+		where user_id = #{userId}
+		<if test="isShow!=null">and is_show=#{isShow}</if>
+		order by create_time desc
+		limit #{start},#{rowCount}
+	</select>
+
+	<select id="getCountByMap" parameterType="hashMap" resultType="Integer">
+		select count(*)
+		from sno_article
+		where user_id = #{userId}
+		<if test="isShow!=null">and is_show=#{isShow}</if>
+	</select>
+
+	<update id="update">
+		update sno_article
+		<set>
+			<if test="title != null and title!=''">`title` = #{title}, </if>
+			<if test="pageText != null and pageText!=''">`page_text` = #{pageText}, </if>
+		</set>
+		where id = #{id}
+	</update>
+
+</mapper>

@@ -41,6 +41,8 @@ public class SnoAllianceController {
 	@Autowired
 	private SnoReplyImageService snoReplyImageService;
 	@Autowired
+	private SnoActivityLinkService snoActivityLinkService;
+	@Autowired
 	private SnoUserService snoUserService;
 
 	// 查找商家参与的活动
@@ -125,6 +127,10 @@ public class SnoAllianceController {
 		}else{
 			activity.put("merchantList",new String[]{});
 		}
+
+		// 活动链接
+		List<SnoActivityLinkPO> linkList = snoActivityLinkService.listByActivityId(id);
+		activity.put("linkList",linkList);
 
 		apiResultVO.setData(activity);
 		return apiResultVO;
@@ -250,12 +256,18 @@ public class SnoAllianceController {
 	public ApiResultVO addActivity(@LoginUser SnoUserPO user,
 								   @RequestBody SnoAllianceActivityPO activityPO) throws IOException {
 		ApiResultVO apiResultVO = new ApiResultVO();
-		activityPO.setUserId(user.getId());
-		activityPO.setPlaceLevel(StringUtils.isEmpty(activityPO.getArea())?2:3);
 		activityPO.setLogo(SnoUtil.downloadWxImage(activityPO.getLogo()));
+		if(activityPO.getId()!=null){
+			snoAllianceActivityService.update(activityPO);
+			apiResultVO.setData(activityPO.getId());
+		}else{
+			activityPO.setUserId(user.getId());
+			activityPO.setPlaceLevel(StringUtils.isEmpty(activityPO.getArea())?2:3);
 
-		Integer i = snoAllianceActivityService.save(activityPO);
-		apiResultVO.setData(i);
+			Integer i = snoAllianceActivityService.save(activityPO);
+			apiResultVO.setData(i);
+		}
+
 		return apiResultVO;
 	}
 
@@ -355,6 +367,34 @@ public class SnoAllianceController {
 		resMap.put("childList",childList);
 		resMap.put("merchantList",merchantList);
 
+		apiResultVO.setData(resMap);
+		return apiResultVO;
+	}
+
+	// 我发布的活动
+	@GetMapping("listMyActivity")
+	public ApiResultVO listMyActivity(@LoginUser SnoUserPO user,
+									  @RequestParam(value="current",defaultValue = "1") Integer current,
+									  @RequestParam(value="rowCount",defaultValue = "10") Integer rowCount){
+		ApiResultVO apiResultVO = new ApiResultVO();
+
+		HashMap<String, Object> paramMap = new HashMap<>();
+		paramMap.put("userId",user.getId());
+		paramMap.put("start",(current-1)*rowCount);
+		paramMap.put("rowCount",rowCount);
+		List<Map<String, Object>> list = snoAllianceActivityService.listActivity(paramMap);
+		Integer total = snoAllianceActivityService.getActivityCountByMap(paramMap);
+
+		if(total>0){
+			for (Map<String, Object> activity : list) {
+				List<SnoActivityLinkPO> linkList = snoActivityLinkService.listByActivityId((Integer)activity.get("id"));
+				activity.put("linkList",linkList);
+			}
+		}
+
+		Map<String, Object> resMap = new HashMap<>();
+		resMap.put("list",list);
+		resMap.put("total",total);
 		apiResultVO.setData(resMap);
 		return apiResultVO;
 	}

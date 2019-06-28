@@ -119,8 +119,14 @@ public class SnoMerchantController {
 			SnoUserPO user = snoUserService.getById((String) po.get("user_id"));
 			po.put("mobile",user==null?null:user.getMobile());
 		}
-		List<Map<String, Object>> subjectList = snoMerchantSubjectService.listSubject(id);
-		po.put("subjectList",subjectList);
+
+		if (po != null) {
+			List<SnoMerchantImgPO> imgList = snoMerchantImgService.listByMerchantId(id);
+			po.put("imgList", imgList);
+			List<Map<String, Object>> subjectList = snoMerchantSubjectService.listSubject(id);
+			po.put("subjectList", subjectList);
+		}
+
 		apiResultVO.setData(po);
 		return apiResultVO;
 	}

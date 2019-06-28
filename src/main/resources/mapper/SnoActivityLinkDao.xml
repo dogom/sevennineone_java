@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoActivityLinkDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoActivityLinkPO">
+		select `id`,`img`,`activity_id`,`link`,`is_show`,`create_time` from sno_activity_link where id = #{value}
+	</select>
+ 
+	 
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoActivityLinkPO" useGeneratedKeys="true" keyProperty="id">
+		insert into sno_activity_link
+		(
+			`img`,
+			`activity_id`,
+			`link`
+		)
+		values
+		(
+			#{img},
+			#{activityId},
+			#{link}
+		)
+	</insert>
+	 
+	<select id="listByActivityId" resultType="com.gfang.sevennineone.model.po.SnoActivityLinkPO">
+		select * from sno_activity_link
+		where activity_id = #{activityId}
+	</select>
+
+
+	<update id="update">
+		update
+		<set>
+			<if test="img!= null">`img` = #{img}, </if>
+			<if test="activityId!= null">`activity_id` = #{activityId}, </if>
+			<if test="link!= null">`link` = #{link}, </if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="delete">
+		delete from sno_activity_link
+		where id = #{id}
+	</delete>
+</mapper>
