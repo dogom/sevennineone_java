@@ -43,6 +43,8 @@ public class SnoAllianceController {
 	@Autowired
 	private SnoActivityLinkService snoActivityLinkService;
 	@Autowired
+	private SnoActivityPrizeService snoActivityPrizeService;
+	@Autowired
 	private SnoUserService snoUserService;
 
 	// 查找商家参与的活动
@@ -389,6 +391,11 @@ public class SnoAllianceController {
 			for (Map<String, Object> activity : list) {
 				List<SnoActivityLinkPO> linkList = snoActivityLinkService.listByActivityId((Integer)activity.get("id"));
 				activity.put("linkList",linkList);
+
+				Map<String, Object> prizeParam = new HashMap<>();
+				prizeParam.put("activityId",activity.get("id"));
+				List<SnoActivityPrizePO> prizeList = snoActivityPrizeService.listByMap(prizeParam);
+				activity.put("prizeList",prizeList);
 			}
 		}
 

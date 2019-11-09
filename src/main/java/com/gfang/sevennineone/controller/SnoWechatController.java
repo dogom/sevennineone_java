@@ -291,10 +291,12 @@ public class SnoWechatController {
                         Integer paidFee = (Integer) reply.get("paid_fee");
                         Integer totalFee = (Integer) reply.get("total_fee");
 
-                        if (paidFee > 9900 && paidFee < totalFee / 2) {
+                        if (paidFee > 1900 && paidFee < 9900) {
                             snoReplyService.updateProgress(donationPO.getReplyId(),2);
-                        }else if(paidFee > totalFee / 2){
+                        }else if(paidFee > 9900 && paidFee < totalFee / 2){
                             snoReplyService.updateProgress(donationPO.getReplyId(),3);
+                        }else if(paidFee > totalFee / 2){
+                            snoReplyService.updateProgress(donationPO.getReplyId(),4);
                         }
                     }catch (Exception e){
 

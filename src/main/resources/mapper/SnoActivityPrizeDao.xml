@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gfang.sevennineone.dao.SnoActivityPrizeDao">
+
+	<select id="getById" resultType="com.gfang.sevennineone.model.po.SnoActivityPrizePO">
+		select
+		 	`id`,
+			`user_id`,
+			`activity_id`,
+			`name`,
+			`img`,
+			`poster`,
+			`money_line`,
+			`is_show`,
+			`is_delete`,
+			`create_time`
+		 from sno_activity_prize where id = #{value}
+	</select>
+ 
+	 
+	<insert id="save" parameterType="com.gfang.sevennineone.model.po.SnoActivityPrizePO" keyProperty="id" useGeneratedKeys="true">
+		insert into sno_activity_prize
+		(
+			`user_id`,
+			`activity_id`,
+			`name`,
+			`img`,
+			`poster`,
+			`money_line`,
+			`is_show`
+		)
+		values
+		(
+			#{userId},
+			#{activityId},
+			#{name},
+			#{img},
+			#{poster},
+			#{moneyLine},
+			#{isShow}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.gfang.sevennineone.model.po.SnoActivityPrizePO">
+		update sno_activity_prize
+		<set>
+			<if test="userId != null">`user_id` = #{userId}, </if>
+			<if test="activityId != null">`activity_id` = #{activityId}, </if>
+			<if test="name != null">`name` = #{name}, </if>
+			<if test="img != null">`img` = #{img}, </if>
+			<if test="poster != null">`poster` = #{poster}, </if>
+			<if test="moneyLine != null">`money_line` = #{moneyLine}, </if>
+			<if test="isShow != null">`is_show` = #{isShow},</if>
+			<if test="isDelete != null">`is_delete` = #{isDelete},</if>
+			<if test="createTime != null">`create_time` = #{createTime},</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<select id="listByMap" parameterType="hashMap" resultType="hashMap">
+		select * from sno_activity_prize
+		<where>
+			is_delete = 0
+			<if test="userId !=null">and userId = #{userId}</if>
+			<if test="activityId !=null">and activity_id  = #{activityId }</if>
+			<if test="name !=null">and name  = #{name }</if>
+			<if test="img !=null">and img  = #{img }</if>
+			<if test="poster !=null">and poster  = #{poster }</if>
+			<if test="moneyLine !=null">and money_line  = #{moneyLine }</if>
+			<if test="isShow !=null">and is_show  = #{isShow }</if>
+		</where>
+		order by create_time desc
+		<if test="start!=null and rowCount!=null">
+			limit #{start},#{rowCount}
+		</if>
+	</select>
+
+	<select id="getCountByMap" parameterType="hashMap" resultType="Integer">
+		select count(*) from sno_activity_prize
+		<where>
+			is_delete = 0
+			<if test="userId !=null">and userId = #{userId}</if>
+			<if test="activityId !=null">and activity_id  = #{activityId }</if>
+			<if test="name !=null">and name  = #{name }</if>
+			<if test="img !=null">and img  = #{img }</if>
+			<if test="poster !=null">and poster  = #{poster }</if>
+			<if test="moneyLine !=null">and money_line  = #{moneyLine }</if>
+			<if test="isShow !=null">and is_show  = #{isShow }</if>
+		</where>
+	</select>
+	 
+
+</mapper>

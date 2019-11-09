@@ -52,6 +52,8 @@ public class SnoReplyController {
 	@Autowired
 	private SnoAllianceMerchantService snoAllianceMerchantService;
 	@Autowired
+	private SnoActivityPrizeService snoActivityPrizeService;
+	@Autowired
 	private SnoSmsDetailService snoSmsDetailService;
 
 	// 查看用户是否报名某个活动
@@ -270,6 +272,12 @@ public class SnoReplyController {
 		}else{
 			reply.put("merchantList",new String[]{});
 		}
+
+		//活动礼物
+		Map<String, Object> prizeParam = new HashMap<>();
+		prizeParam.put("activityId",activity.getId());
+		List<SnoActivityPrizePO> prizeList = snoActivityPrizeService.listByMap(prizeParam);
+		reply.put("prizeList",prizeList);
 
 
 		apiResultVO.setData(reply);
