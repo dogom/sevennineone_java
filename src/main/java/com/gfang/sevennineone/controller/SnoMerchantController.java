@@ -81,8 +81,10 @@ public class SnoMerchantController {
 		paramMap.put("auditStatus",2);
 		HashMap<String, Object> resultMap = new HashMap<>();
 		List<Map<String, Object>> maps = snoMerchantService.listMerchant(paramMap);
+		Integer total = snoMerchantService.getMerchantCountByMap(paramMap);
 
 		resultMap.put("list",maps);
+		resultMap.put("total",total);
 
 		// 腾讯地图调用地理位置计算距离
 		try{
